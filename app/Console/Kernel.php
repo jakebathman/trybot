@@ -62,7 +62,6 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Chicago')
             ->weekdays()
             ->withoutOverlapping();
-
     }
 
     /**
@@ -73,5 +72,7 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         require base_path('routes/console.php');
+
+        $this->load(__DIR__ . '/Commands');
     }
 }
