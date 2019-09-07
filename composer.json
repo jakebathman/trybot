@@ -14,7 +14,7 @@
         "iboldurev/api-ai-php": "^0.2.5",
         "intervention/image": "^2.4",
         "ixudra/curl": "^6.10",
-        "laravel/framework": "5.5.*",
+        "laravel/framework": "5.6.*",
         "laravel/socialite": "^3.0",
         "laravel/tinker": "~1.0",
         "mressex/laravel-auth-profile": "^1.0",
@@ -22,12 +22,13 @@
         "predis/predis": "^1.1",
         "socialiteproviders/slack": "^3.0",
         "tburry/pquery": "^1.1",
-        "venturecraft/revisionable": "^1.28"
+        "venturecraft/revisionable": "^1.28",
+        "fideloper/proxy": "^4.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~6.0",
+        "phpunit/phpunit": "~7.0",
         "xethron/migrations-generator": "^2.0",
         "filp/whoops": "~2.0"
     },
