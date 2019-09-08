@@ -10,6 +10,7 @@
     "require": {
         "php": ">=5.6.4",
         "cloudcreativity/laravel-json-api": "^1.4",
+        "facade/ignition": "^1.4",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^6.3",
         "iboldurev/api-ai-php": "^0.2.5",
