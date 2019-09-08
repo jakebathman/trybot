@@ -3,18 +3,11 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class TwitchTest extends TestCase
 {
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function testTwitchGet()
+    /** @test */
+    function it_gets_twitch_endpoint()
     {
         $response = $this->json('GET', '/twitch');
 
@@ -24,5 +17,15 @@ class TwitchTest extends TestCase
               'streamers'  =>  [],
               'results'  =>  [],
               ]);
+    }
+
+    /** @test */
+    function it_gets_twitch_id_for_username()
+    {
+        $response = $this->json('GET', '/twitch/jakebathman');
+
+        $response
+            ->assertStatus(200)
+            ->assertSeeText('58202671');
     }
 }
