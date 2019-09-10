@@ -23,8 +23,7 @@
         "pda/pheanstalk": "~4.0",
         "predis/predis": "^1.1",
         "socialiteproviders/slack": "^3.0",
-        "tburry/pquery": "^1.1",
-        "venturecraft/revisionable": "^1.28"
+        "tburry/pquery": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

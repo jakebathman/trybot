@@ -27,6 +27,7 @@ use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Facades\Helper;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redis;
 use Intervention\Image\ImageManager;
 use Ixudra\Curl\Facades\Curl;
@@ -38,7 +39,8 @@ class FantasyFootball
 {
 
     public $root;
-    public $espnBase = "http://games.espn.com";
+    // public $espnBase = "http://games.espn.com";
+    public $espnBase = "https://fantasy.espn.com";
 
     public $debug;
 
@@ -387,37 +389,34 @@ class FantasyFootball
     public function updateLeagueInfo($leagueId)
     {
         // Get the full league info
-        $url = $this->espnBase . "/ffl/api/v2/leagueInformation?leagueId={$leagueId}&includeTeamRecords=true&fromTeamId=1&rand=" . random_int(11111, 999999);
-        $r = Curl::to($url)
+        $url = $this->espnBase . "/apis/v3/games/FFL/seasons/2019/segments/0/leagues/{$leagueId}?view=cinco_wl_leagueInfo&leagueId={$leagueId}&rand=" . random_int(11111, 999999);
+
+        $leagueInfo = Curl::to($url)
             ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
-        // ->asJson()
+            ->asJson()
             ->get();
 
-        $r = json_decode(utf8_encode($r));
-
         // Pull out the team IDs
-        $leagueInfo = $r->leagueinformation;
-        $teamIds = collect($leagueInfo->leaguesettings->teams)->keys()->implode(',');
+        $teamIds = collect($leagueInfo->teams)->pluck('id')->implode(',');
 
         // Insert/update the league record
         $league = League::firstOrNew(['leagueId' => $leagueId]);
         $league->fill([
-            'leagueId' => $leagueInfo->leagueenvironment->leagueId,
-            'name' => $leagueInfo->leaguesettings->name,
-            'currentMatchupPeriodId' => $leagueInfo->leagueenvironment->currentMatchupPeriodId,
-            'dateDraft' => $leagueInfo->leaguesettings->dateDraft,
-            'dateDraftCompleted' => $leagueInfo->leaguesettings->dateDraftCompleted,
-            'finalRegularSeasonMatchupPeriodId' => $leagueInfo->leaguesettings->finalRegularSeasonMatchupPeriodId,
-            'tradeDeadline' => $leagueInfo->leaguesettings->tradeDeadline,
-            'vetoVotesRequired' => $leagueInfo->leaguesettings->vetoVotesRequired,
-            'size' => $leagueInfo->leaguesettings->size,
+            'leagueId' => $leagueInfo->id,
+            'name' => $leagueInfo->settings->name,
+            'currentMatchupPeriodId' => $leagueInfo->scoringPeriodId,
+            'dateDraft' => Carbon::createFromTimestampMs($leagueInfo->settings->draftSettings->availableDate),
+            'dateDraftCompleted' => Carbon::createFromTimestampMs($leagueInfo->settings->draftSettings->date),
+            'finalRegularSeasonMatchupPeriodId' => $leagueInfo->settings->scheduleSettings->matchupPeriodCount,
+            'tradeDeadline' => Carbon::createFromTimestampMs($leagueInfo->settings->tradeSettings->deadlineDate),
+            'vetoVotesRequired' => $leagueInfo->settings->tradeSettings->vetoVotesRequired,
+            'size' => $leagueInfo->status->teamsJoined,
             'teamIds' => $teamIds,
-            'playoffTeamCount' => $leagueInfo->leaguesettings->playoffTeamCount,
-            'timePerDraftSelection' => $leagueInfo->leaguesettings->timePerDraftSelection,
-            'inviteKey' => $leagueInfo->leaguesettings->inviteKey,
-            'finalMatchupPeriodId' => $leagueInfo->leaguesettings->finalMatchupPeriodId,
-            'regularSeasonMatchupPeriodCount' => $leagueInfo->leaguesettings->regularSeasonMatchupPeriodCount,
+            'playoffTeamCount' => $leagueInfo->settings->scheduleSettings->playoffTeamCount,
+            'timePerDraftSelection' => $leagueInfo->settings->draftSettings->timePerSelection,
+            'finalMatchupPeriodId' => $leagueInfo->status->finalScoringPeriod,
+            'regularSeasonMatchupPeriodCount' => $leagueInfo->settings->scheduleSettings->matchupPeriodCount,
         ]);
 
         $this->results[__FUNCTION__] = $league->save();
@@ -441,63 +440,45 @@ class FantasyFootball
         }
 
         // Get the league's schedule info
-        $url = $this->espnBase . "/ffl/api/v2/newTeams?leagueId={$leagueId}&teamIds={$teamId}&rand=" . random_int(11111, 999999);
+        $url = $this->espnBase . "/apis/v3/games/FFL/seasons/2019/segments/0/leagues/{$leagueId}?view=cinco_wl_leagueInfo&leagueId={$leagueId}&rand=" . random_int(11111, 999999);
 
         $r = Curl::to($url)
             ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
-        // ->asJson()
+            ->asJson()
             ->get();
 
-        $r = json_decode(utf8_encode($r));
-        // echo json_encode($r);
-        // exit();
         $results = [];
-        $scheduleInfo = collect((array) $r->teams)
-            ->pluck('scheduleItems')
-            ->map(function ($v, $k) {
-                $matchups = [];
-                foreach ($v as $teamSchedule) {
-                    $teamSchedule->matchups[0]->matchupPeriodId = $teamSchedule->matchupPeriodId;
-                    $matchups[] = $teamSchedule->matchups;
-                }
-                return $matchups;
-            })
-            ->flatten()
-            ->tap(function ($collection) {
-                // echo json_encode($collection);
-                // die();
-            })
-            ->each(function ($matchup) use ($leagueId, &$results) {
-                if ($matchup->isBye) {
-                    $awayTeamId = null;
-                } else {
-                    $awayTeamId = $matchup->awayTeamId;
-                }
-                $teamsHash = md5($matchup->homeTeamId . $awayTeamId);
+
+        $weekAndSeasonType = $this->getWeek(true);
+        $seasontype = $weekAndSeasonType['seasontype'];
+
+        $scheduleInfo = collect($r->schedule)
+            ->each(function ($matchup) use ($leagueId, &$results, $seasontype) {
+                $homeTeamId = data_get($matchup,'home.teamId');
+                $awayTeamId = data_get($matchup,'away.teamId');
+                $teamsHash = md5($homeTeamId . $awayTeamId);
 
                 // Insert/update this matchup
-                $item = ScheduleItem::firstOrNew([
+                $item = ScheduleItem::updateOrCreate([
                     'leagueId' => $leagueId,
                     'teamsHash' => $teamsHash,
-                    'matchupPeriodId' => $matchup->matchupPeriodId,
+                    'matchupPeriodId' => data_get($matchup, 'id'),
+                ],
+                [
+                'leagueId' => $leagueId,
+                'teamsHash' => $teamsHash,
+                'matchupTypeId' => $seasontype,
+                'isBye' => data_get($matchup, 'isBye', false),
+                'homeTeamId' => $homeTeamId,
+                'homeTeamScores' => collect(data_get($matchup,'home.pointsByScoringPeriod'))->values()->first(),
+                'homeTeamAdjustment' => data_get($matchup,'home.adjustment'),
+                'awayTeamId' => $awayTeamId,
+                'awayTeamScores' => collect(data_get($matchup,'away.pointsByScoringPeriod'))->values()->first(),
+                'awayTeamAdjustment' => data_get($matchup,'away.adjustment'),
+                'outcome' => 0,
                 ]);
-                $item->leagueId = $leagueId;
-                $item->teamsHash = $teamsHash;
-                $item->matchupTypeId = $matchup->matchupTypeId;
-                $item->matchupPeriodId = $matchup->matchupPeriodId;
-                $item->isBye = $matchup->isBye;
-                $item->homeTeamId = $matchup->homeTeamId;
-                $item->homeTeamScores = json_encode($matchup->homeTeamScores);
-                $item->homeTeamAdjustment = $matchup->homeTeamAdjustment;
-                if (! $matchup->isBye) {
-                    $item->awayTeamId = $awayTeamId;
-                    $item->awayTeamScores = json_encode($matchup->awayTeamScores);
-                    $item->awayTeamAdjustment = $matchup->awayTeamAdjustment;
-                }
-                $item->outcome = $matchup->outcome;
-
-                $results[$item->primary] = $item->save();
+                // $results[$item->primary] = $item->save();
             });
 
         $this->results[__FUNCTION__] = $results;
@@ -513,35 +494,33 @@ class FantasyFootball
         }
 
         // Get the league's schedule info
-        $url = $this->espnBase . "/ffl/api/v2/newTeams?leagueId={$leagueId}&teamIds={$teamId}&rand=" . random_int(11111, 999999);
+        $url = $this->espnBase . "/apis/v3/games/FFL/seasons/2019/segments/0/leagues/{$leagueId}?view=cinco_wl_leagueInfo&leagueId={$leagueId}&rand=" . random_int(11111, 999999);
 
         $r = Curl::to($url)
             ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
-        // ->asJson()
+            ->asJson()
             ->get();
 
-        $r = json_decode(utf8_encode($r));
+            $members = collect($r->members)->keyBy('id');
 
         $arrayableFields = ['record', 'teamTransactions', 'division', 'primaryOwner'];
         $results = [];
         $teamsInfo = collect($r->teams)->tap(function ($collection) {
             // dd($collection);
-        })->each(function ($teamInfo) use ($leagueId, $arrayableFields, &$results) {
+            })
+        ->each(function ($teamInfo) use ($leagueId, $arrayableFields, &$results, $members) {
 
             // For each team, clean up the collection and insert/update their info
             $team = collect($teamInfo);
-            $team = $team->put('primaryOwner', $team->get('owners')[0])
-                ->map(function ($item, $key) use ($arrayableFields) {
-                    if (in_array($key, $arrayableFields)) {
-                        return (array) $item;
-                    }
-                    return $item;
-                })->tap(function ($collection) {
-                // dd($collection);
+            $team = $team->map(function ($item, $key) use ($arrayableFields) {
+                if (in_array($key, $arrayableFields)) {
+                    return (array) $item;
+                }
+                return $item;
             })->toArray();
 
-            $teamId = Arr::get($team, 'teamId');
+            $teamId = Arr::get($team, 'id');
             $t = Team::firstOrNew([
                 'leagueId' => $leagueId,
                 'teamId' => $teamId,
@@ -551,35 +530,34 @@ class FantasyFootball
                 $t->fill([
                     'leagueId' => $leagueId,
                     'teamId' => $teamId,
-                    'overallWins' => Arr::get($team, 'record.overallWins'),
-                    'overallLosses' => Arr::get($team, 'record.overallLosses'),
-                    'overallTies' => Arr::get($team, 'record.overallTies'),
-                    'streakLength' => Arr::get($team, 'record.streakLength'),
-                    'streakType' => Arr::get($team, 'record.streakType'),
-                    'pointsFor' => Arr::get($team, 'record.pointsFor'),
-                    'pointsAgainst' => Arr::get($team, 'record.pointsAgainst'),
-                    'overallAcquisitionTotal' => Arr::get($team, 'teamTransactions.overallAcquisitionTotal'),
-                    'dropsTotal' => Arr::get($team, 'teamTransactions.drops'),
-                    'divisionStanding' => Arr::get($team, 'divisionStanding'),
-                    'overallStanding' => Arr::get($team, 'overallStanding'),
-                    'waiverRank' => Arr::get($team, 'waiverRank'),
-                    'divisionId' => Arr::get($team, 'division.divisionId'),
-                    'teamName' => trim(Arr::get($team, 'teamLocation')) . " " . trim(Arr::get($team, 'teamNickname')),
-                    'teamLocation' => trim(Arr::get($team, 'teamLocation')),
-                    'teamNickname' => trim(Arr::get($team, 'teamNickname')),
-                    'teamAbbrev' => Arr::get($team, 'teamAbbrev'),
-                    'ownerFirstName' => Arr::get($team, 'primaryOwner.firstName'),
-                    'ownerLastName' => Arr::get($team, 'primaryOwner.lastName'),
-                    'ownerUserName' => Arr::get($team, 'primaryOwner.userName'),
-                    'ownerPhotoUrl' => Arr::get($team, 'primaryOwner.photoUrl'),
-                    'ownerUserProfileId' => Arr::get($team, 'primaryOwner.userProfileId'),
-                    'logoUrl' => Arr::get($team, 'logoUrl'),
+                    'overallWins' => data_get($team, 'record.overall.wins'),
+                    'overallLosses' => data_get($team, 'record.overall.losses'),
+                    'overallTies' => data_get($team, 'record.overall.ties'),
+                    'streakLength' => data_get($team, 'record.overall.streakLength'),
+                    'streakType' => data_get($team, 'record.overall.streakType'),
+                    'pointsFor' => data_get($team, 'record.overall.pointsFor'),
+                    'pointsAgainst' => data_get($team, 'record.overall.pointsAgainst'),
+                    'overallAcquisitionTotal' => data_get($team, 'transactionCounter.acquisitions'),
+                    'dropsTotal' => data_get($team, 'transactionCounter.drops'),
+                    'divisionStanding' => data_get($team, 'currentProjectedRank'),
+                    'overallStanding' => data_get($team, 'currentProjectedRank'),
+                    'waiverRank' => data_get($team, 'waiverRank'),
+                    'divisionId' => data_get($team, 'divisionId'),
+                    'teamName' => trim(data_get($team, 'location')) . " " . trim(data_get($team, 'nickname')),
+                    'teamLocation' => trim(data_get($team, 'location')),
+                    'teamNickname' => trim(data_get($team, 'nickname')),
+                    'teamAbbrev' => data_get($team, 'abbrev'),
+                    'ownerFirstName' => $members->get(data_get($team, 'primaryOwner')[0])->firstName,
+                    'ownerLastName' => $members->get(data_get($team, 'primaryOwner')[0])->lastName,
+                    'ownerUserName' => $members->get(data_get($team, 'primaryOwner')[0])->displayName,
+                    'ownerUserProfileId' => data_get($team, 'primaryOwner')[0],
+                    'logoUrl' => data_get($team, 'logo'),
                 ]);
 
                 $results[$teamId] = $t->save();
 
             } catch (\Throwable $e) {
-                $results[$teamId] = false;
+                $results[$teamId] = $e->getMessage();
             }
 
         });

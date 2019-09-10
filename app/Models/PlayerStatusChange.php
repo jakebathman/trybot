@@ -9,13 +9,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class PlayerStatusChange extends Model
 {
-    // Use revisionable trait to track model changes
-    use \Venturecraft\Revisionable\RevisionableTrait;
-
-    protected $revisionCreationsEnabled = true;
-    protected $keepRevisionOf           = [];
-    protected $dontKeepRevisionOf       = [];
-
     protected $connection = 'fantasyfootball';
 
     protected $table = 'playerStatusChanges';

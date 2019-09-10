@@ -9,14 +9,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class TransactionDetail extends Model
 {
-    // Use revisionable trait to track model changes
-    use \Venturecraft\Revisionable\RevisionableTrait;
-    use \App\Traits\FormatDates;
-
-    protected $revisionCreationsEnabled = true;
-    protected $keepRevisionOf           = [];
-    protected $dontKeepRevisionOf       = [];
-
     protected $connection = 'fantasyfootball';
 
     protected $table = 'transactionDetails';

@@ -15,6 +15,10 @@ use Ixudra\Curl\Facades\Curl;
 
 Route::get('/', 'HomeController@index');
 
+Route::group(['prefix' => 'fantasy'], function () {
+    Route::get('update-leagues', 'FantasyController@updateLeagues');
+});
+
 Route::get('ff_test', function () {
     $f = new \App\Services\FantasyFootball(true);
     return $f->updateScheduleItems('111799');
