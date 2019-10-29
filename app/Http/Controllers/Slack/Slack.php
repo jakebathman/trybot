@@ -373,7 +373,7 @@ class Slack extends Controller
         $patterns = [
         'fortnite' => '/https?:\/\/(?:www)?twitter.com\/(FortniteGame|FortniteBR|ninja|drlupoontwitch|TSM_Myth|FortniteDaily|FNCompetitive)/i',
         'overwatch' => '/https?:\/\/(?:www)?twitter.com\/(PlayOverwatch)/i',
-        'callofduty' => '/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey)/i',
+        'callofduty' => '/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey|InfinityWard)/i',
         'destiny' => '/https?:\/\/(?:www)?twitter.com\/(theDestinyBlog|BungieHelp|DestinyTheGame|Bungie)/i',
         'apex' => '/https?:\/\/(?:www)?twitter.com\/(Respawn|PlayApex)/i',
         ];
