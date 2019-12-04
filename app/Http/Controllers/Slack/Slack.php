@@ -371,9 +371,9 @@ class Slack extends Controller
         // Depending on the account that's being retweeted, route to a specific group
         // Otherwise, send to #casual
         $patterns = [
-        'fortnite' => '/https?:\/\/(?:www)?twitter.com\/(FortniteGame|FortniteBR|ninja|drlupoontwitch|TSM_Myth|FortniteDaily|FNCompetitive)/i',
+        'fortnite' => '/https?:\/\/(?:www)?twitter.com\/(FortniteGame|FortniteBR|ninja|drlupoontwitch|TSM_Myth|FortniteDaily|FNCompetitive|FortniteStatus)/i',
         'overwatch' => '/https?:\/\/(?:www)?twitter.com\/(PlayOverwatch)/i',
-        'callofduty' => '/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey|InfinityWard)/i',
+        'callofduty' => '/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey|InfinityWard|ATVIAssist)/i',
         'destiny' => '/https?:\/\/(?:www)?twitter.com\/(theDestinyBlog|BungieHelp|DestinyTheGame|Bungie)/i',
         'apex' => '/https?:\/\/(?:www)?twitter.com\/(Respawn|PlayApex)/i',
         ];
