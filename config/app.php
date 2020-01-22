@@ -162,10 +162,6 @@ return [
 
         Ixudra\Curl\CurlServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,
-        MrEssex\LaravelAuthProfile\AuthProfileServiceProvider::class,
-
-        Way\Generators\GeneratorsServiceProvider::class,
-        Xethron\MigrationsGenerator\MigrationsGeneratorServiceProvider::class,
 
     ],
 
