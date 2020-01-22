@@ -95,7 +95,7 @@ class FantasyFootball
 
             // echo $dateStartOfGameDay->format('Y-m-d H:m:i');
             foreach ($games['games'] as $game) {
-                $tmpGame = array(
+                $tmpGame = [
                     "id" => null,
                     "dateStart" => null,
                     "seasontype" => $seasontype,
@@ -126,18 +126,18 @@ class FantasyFootball
                     "venueLocation" => null,
                     "venueFullName" => null,
                     "links" => null,
-                );
+                ];
 
                 $dateGameStart = \DateTime::createFromFormat('Y-m-d\TH:i\Z', $game['competitions'][0]['startDate'], new \DateTimeZone('UTC'));
                 foreach ($game['competitions'][0]['competitors'] as $team) {
                     if ($team['homeAway'] == "home") {
                         $tmpGame['homeTeamId'] = $team['id'];
                         $tmpGame['homeTeamScore'] = $team['score'];
-                        $tmpGame['homeTeamLinescores'] = isset($team['linescores']) ? json_encode($team['linescores']) : json_encode(array());
+                        $tmpGame['homeTeamLinescores'] = isset($team['linescores']) ? json_encode($team['linescores']) : json_encode([]);
                     } else {
                         $tmpGame['awayTeamId'] = $team['id'];
                         $tmpGame['awayTeamScore'] = $team['score'];
-                        $tmpGame['awayTeamLinescores'] = isset($team['linescores']) ? json_encode($team['linescores']) : json_encode(array());
+                        $tmpGame['awayTeamLinescores'] = isset($team['linescores']) ? json_encode($team['linescores']) : json_encode([]);
                     }
                     if (array_get($team, 'winner') == true) {
                         $tmpGame['winnerTeamId'] = $team['id'];
@@ -223,7 +223,8 @@ class FantasyFootball
         })->orWhere('statusState', '=', 'in')->get();
     }
     public function getNflScoresForWeek($seasontype = null, $week = null)
-    {}
+    {
+    }
 
     public function getUpcomingGames($daysInFuture = 1, $daysInPast = 2)
     {
@@ -236,7 +237,8 @@ class FantasyFootball
     }
 
     public function getUpcomingGamesByTeam($teamName)
-    {}
+    {
+    }
     public function logNflScheduleItem($data)
     {
         $n = NflSchedule::firstOrNew([
@@ -330,7 +332,8 @@ class FantasyFootball
     }
 
     public function getNflStandings($division = null)
-    {}
+    {
+    }
 
     /**
      *
@@ -423,7 +426,6 @@ class FantasyFootball
         $this->logToRedis(__FUNCTION__);
 
         return $league;
-
     }
 
     /**
@@ -538,7 +540,7 @@ class FantasyFootball
                     return $item;
                 })->tap(function ($collection) {
                 // dd($collection);
-            })->toArray();
+                })->toArray();
 
             $teamId = array_get($team, 'teamId');
             $t = Team::firstOrNew([
@@ -576,18 +578,15 @@ class FantasyFootball
                 ]);
 
                 $results[$teamId] = $t->save();
-
             } catch (\Throwable $e) {
                 $results[$teamId] = false;
             }
-
         });
 
         $this->results[__FUNCTION__] = $results;
         $this->logToRedis(__FUNCTION__);
 
         return $teamsInfo;
-
     }
 
     public function updateTeamRosterInfo($leagueId, $teamId = null, $scoringPeriodId = null)
@@ -615,7 +614,6 @@ class FantasyFootball
 
         foreach ($arrRosterInfo['teams'] as $teams) {
             if (($scoringPeriodId != $this->getMatchupPeriodId($leagueId)) && ($scoringPeriodId !== null)) {
-
                 // If it's for another period (e.g. not current roster), log on rostersLog
                 $hash = md5(json_encode($teams['slots']));
                 $highestPlayerId = 0;
@@ -650,15 +648,12 @@ class FantasyFootball
                         'lowestPlayerScore' => $lowestPlayerScore,
                     ])
                     ->save();
-
             } else {
-
                 // Update current roster info in rosters table
                 // Delete existing roster info (or now-empty slots will persist)
                 Roster::where('teamId', '=', $teams['teamId'])->where('leagueId', '=', $leagueId)->delete();
 
                 foreach ($teams['slots'] as $k => $v) {
-
                     // Add the roster record for this player
                     Roster::create([
                         'leagueId' => $leagueId,
@@ -669,7 +664,6 @@ class FantasyFootball
                     ]);
 
                     if (array_get($v, 'player.playerId')) {
-
                         $fullName = $v['player']['firstName'] . " " . $v['player']['lastName'];
 
                         // Update the ESPN player table
@@ -685,7 +679,6 @@ class FantasyFootball
             }
         }
         return $r;
-
     }
 
     public function updateTransactionInfo($leagueId)
@@ -693,7 +686,6 @@ class FantasyFootball
         $recentActivity = $this->getRecentActivity($leagueId, 100);
 
         foreach ($recentActivity as $k => $v) {
-
             if (isset($v->transactionLogItemTypeId) && in_array($v->transactionLogItemTypeId, array_keys(config('espn.transactionLogItemTypeId')))) {
                 $d = $v;
                 $d->leagueId = $leagueId;
@@ -771,7 +763,7 @@ class FantasyFootball
 
         $leagueScoreboard = $r['scoreboard'];
         foreach ($leagueScoreboard['matchups'] as $matchup) {
-            $tmpMatchup = array();
+            $tmpMatchup = [];
             $tmpMatchup['leagueId'] = $leagueId;
             $tmpMatchup['matchupPeriodId'] = $leagueScoreboard['matchupPeriodId'];
             $tmpMatchup['isBye'] = $matchup['bye'];
@@ -792,8 +784,7 @@ class FantasyFootball
             }
             $this->logMatchupInfo($tmpMatchup);
 
-            if (
-                (
+            if ((
                     ($tmpMatchup['homeIsFinal'] == 1)
                     && ($tmpMatchup['awayIsFinal'] == 1)
                     && ($tmpMatchup['winner'] != 'undecided')
@@ -861,7 +852,6 @@ class FantasyFootball
         }
 
         return $matchup;
-
     }
 
     public function getMatchups($leagueId, $matchupPeriodId = null)
@@ -881,7 +871,6 @@ class FantasyFootball
             ->get();
 
         return $matchups;
-
     }
 
     public function updateSinglePlayerStats($leagueId, $playerId)
@@ -955,7 +944,6 @@ class FantasyFootball
 
                 $value->sortScore = ($value->matchScore * 2) + $value->avgMatchScore + ($value->percentOwned / 200);
             } catch (\Throwable $e) {
-
                 $t = explode("\n", $e->getTraceAsString());
                 dd([
                     'message' => $e->getMessage(),
@@ -1021,18 +1009,15 @@ class FantasyFootball
 
             if ($playerStats['team'] == null) {
                 $strResponse .= ucfirst($pronouns[$pronoun]["he"]) . " " . $pronouns[$pronoun]["is"] . " not signed to an NFL team.";
-            } else if (! empty($arrFullStats)) {
-
+            } elseif (! empty($arrFullStats)) {
                 // They have some live stats, so let's see if they're still in a game
                 $playerInfo = $this->getPlayerInfo($playerStats['playerId'], $leagueId);
 
                 if (($playerInfo['statusId'] == 2) || ($playerInfo['statusState'] == "in")) {
-
                     // Game is live
                     // "He scored 12 points and is projected to get 21 (11:28, 2nd period)"
                     $strResponse .= $br . $br . "This week, " . $pronouns[$pronoun]["he"] . " " . $pronouns[$pronoun]["present"] . " " . floor($arrFullStats['appliedStatTotal']) . " " . (abs(floor($arrFullStats['appliedStatTotal'])) == 1 ? "point" : "points") . " and " . $pronouns[$pronoun]["future"] . " " . floor($arrFullStatsProjected['appliedStatTotal']) . " (" . $playerInfo['statusDetail'] . ")";
                 } else {
-
                     // Game is complete
                     $strResponse .= $br . $br . "This week, " . $pronouns[$pronoun]["he"] . " " . $pronouns[$pronoun]["past"] . " *" . floor($arrFullStats['appliedStatTotal']) . " " . (abs(floor($arrFullStats['appliedStatTotal'])) == 1 ? "point" : "points") . "*. ";
                 }
@@ -1040,7 +1025,6 @@ class FantasyFootball
                 $strResponse .= $br . $br;
                 switch ($playerStats['position']) {
                     case 1:
-
                         // QB
                         $arrStats["PASS"] = array_get($arrFullStats, 'rawStats.1', 0) . " of " . array_get($arrFullStats, 'rawStats.0', 0) . " (" . round((array_get($arrFullStats, 'rawStats.1', 0) / array_get($arrFullStats, 'rawStats.0', 0)) * 100, 1) . "%) for " . array_get($arrFullStats, 'rawStats.3', 0) . (abs(array_get($arrFullStats, 'rawStats.3', 0)) == 1 ? " yd" : " yds");
                         $arrStats["RUSH"] = array_get($arrFullStats, 'rawStats.23', 0) . " att. for " . array_get($arrFullStats, 'rawStats.24', 0) . (abs(array_get($arrFullStats, 'rawStats.24', 0)) == 1 ? " yd" : " yds");
@@ -1088,7 +1072,6 @@ class FantasyFootball
                         break;
 
                     case 5:
-
                         // K
                         if (array_get($arrFullStats, 'rawStats.84', 0)) {
                             $arrStats["FG"] = (array_get($arrFullStats, 'rawStats.83', 0) ?: 0) . "/" . array_get($arrFullStats, 'rawStats.84', 0) . " (" . round(100 * array_get($arrFullStats, 'rawStats.83', 0) / array_get($arrFullStats, 'rawStats.84', 0)) . "%)";
@@ -1104,7 +1087,6 @@ class FantasyFootball
                         break;
 
                     case 16:
-
                         // D/ST
                         if (array_get($arrFullStats, 'rawStats.120', 0)) {
                             $arrStats['Yards allowed'] = array_get($arrFullStats, 'rawStats.120', 0);
@@ -1140,7 +1122,6 @@ class FantasyFootball
                         break;
 
                     default:
-
                         break;
                 }
                 foreach ($arrStats as $k => $v) {
@@ -1178,7 +1159,8 @@ class FantasyFootball
     }
 
     public function updateSalaryInfo()
-    {}
+    {
+    }
     public function updatePlayerInfo($leagueId, $limit = 100)
     {
         $sTime = microtime(true);
@@ -1210,43 +1192,40 @@ class FantasyFootball
             $currentRosterStatus = $this->getCurrentRosterStatus();
 
             foreach ($allPlayers['players'] as $k => $v) {
-
                 // Check for a change in health status from the last update
                 if (isset($currentHealthStatus[$v['player']['playerId']]) && $currentHealthStatus[$v['player']['playerId']] != $v['player']['healthStatus']) {
-                    $arrPlayerStatusChanges[] = array(
+                    $arrPlayerStatusChanges[] = [
                         "playerId" => $v['player']['playerId'],
                         "currentStatus" => $v['player']['healthStatus'],
                         "priorStatus" => $currentHealthStatus[$v['player']['playerId']],
                         "isBetter" => $currentHealthStatus[$v['player']['playerId']] > $v['player']['healthStatus'],
-                    );
+                    ];
                     $this->logPlayerStatusChange($v['player']['playerId'], $v['player']['healthStatus'], $currentHealthStatus[$v['player']['playerId']]);
                 }
 
                 // Check for a change in roster status from the last update (by looking at proTeamId)
                 if (isset($currentProTeam[$v['player']['playerId']]) && $currentProTeam[$v['player']['playerId']] != $v['player']['proTeamId']) {
-
                     $tmpMoveType = null;
                     if ($v['player']['proTeamId'] == null) {
                         $tmpMoveType = "2";
-                    } else if ($currentProTeam[$v['player']['playerId']] == null) {
+                    } elseif ($currentProTeam[$v['player']['playerId']] == null) {
                         $tmpMoveType = "1";
                     } else {
                         $tmpMoveType = "3";
                     }
 
-                    $tmp = array(
+                    $tmp = [
                         "playerId" => $v['player']['playerId'],
                         "currentProTeamId" => $v['player']['proTeamId'],
                         "priorProTeamId" => $currentProTeam[$v['player']['playerId']],
                         "priorRosterStatus" => $currentRosterStatus[$v['player']['playerId']],
                         "currentRosterStatus" => $v['rosterStatus'],
                         "proTeamMoveType" => $tmpMoveType,
-                    );
+                    ];
                     $arrPlayerProTeamChanges[] = $tmp;
                     $this->logPlayerProTeamChange($tmp);
                 }
                 if (EspnAllPlayersLog::where('hash', '=', md5(json_encode($v)))->count() == 0) {
-
                     EspnAllPlayersLog::firstOrCreate([
                         'hash' => md5(json_encode($v)),
                         'playerId' => $v['player']['playerId'],
@@ -1310,7 +1289,8 @@ class FantasyFootball
         ])->save();
     }
     public function getLeagueSize($leagueId)
-    {}
+    {
+    }
 
     public function getCurrentHealthStatus()
     {
@@ -1373,7 +1353,6 @@ class FantasyFootball
             // Exclude
             // Players only going between OUT and INACTIVE
             if ((($v['priorStatus'] == 11) && ($v['currentStatus'] == 4)) || (($v['priorStatus'] == 4) && ($v['currentStatus'] == 11))) {
-
                 // Skip out<-->inactive
                 continue;
             }
@@ -1382,7 +1361,6 @@ class FantasyFootball
             // Prior status was ACTIVE
             // Current status is QUESTIONABLE
             if (($v['priorStatus'] == 0) && ($v['currentStatus'] == 2)) {
-
                 // Skip active-->questionable
                 continue;
             }
@@ -1393,7 +1371,6 @@ class FantasyFootball
             //      AND
             // This NFL team has already played this week
             if ((($v['priorStatus'] == 4) || ($v['priorStatus'] == 11)) || ($v['currentStatus'] <= 1)) {
-
                 // See if their team hasn't played yet this week, otherwise skip them
                 if (in_array($v['proTeamId'], $teamsYetToPlay->toArray()) === false) {
                     continue;
@@ -1416,9 +1393,9 @@ class FantasyFootball
                 } else {
                     $tone = "neutral";
                 }
-            } else if ($v['currentStatus'] < 3) {
+            } elseif ($v['currentStatus'] < 3) {
                 $tone = "neutral";
-            } else if ($v['currentStatus'] >= 4) {
+            } elseif ($v['currentStatus'] >= 4) {
                 $tone = "veryNegative";
             }
             dd($v);
@@ -1437,7 +1414,8 @@ class FantasyFootball
     }
 
     public function processPlayerProTeamIdNotifications($leagueId = null)
-    {}
+    {
+    }
     public function processTransactionNotifications($leagueId = null)
     {
         $dateUtc = new \DateTime(null, new \DateTimeZone("UTC"));
@@ -1460,7 +1438,6 @@ class FantasyFootball
         $slack = new Slack;
         // trades
         foreach ($trades as $k => $transaction) {
-
             $channelId = $this->getSlackChannelFromLeague($transaction['leagueId']);
 
             $teams = $this->getTeams($transaction['leagueId']);
@@ -1480,14 +1457,14 @@ class FantasyFootball
 
             $proposingTeamId = $transaction['proposingTeamId'];
             $receivingTeamName = $teams[$receivingTeamId]['teamLocation'] . " " . $teams[$receivingTeamId]['teamNickname'];
-            $giving = array();
-            $getting = array();
-            $dropping = array();
+            $giving = [];
+            $getting = [];
+            $dropping = [];
             foreach ($transactionDetails as $k => $v) {
                 if ($v['toTeamId'] == -1) {
                     $dropping[$v['fromTeamId']][] = $v->player->fullName . " (" . $positions[$v->player->position] . ", " . $v->player->team . ")";
                     continue;
-                } else if ($v['fromTeamId'] == $transaction['proposingTeamId']) {
+                } elseif ($v['fromTeamId'] == $transaction['proposingTeamId']) {
                     $giving[] = $v->player->fullName . " (" . $positions[$v->player->position] . ", " . $v->player->team . ")";
                     continue;
                 }
@@ -1539,7 +1516,7 @@ class FantasyFootball
             $proposingTeamId = json_decode($transaction['teamsInvolved'], true)[0];
             $proposingTeamName = $teams[$proposingTeamId]['teamLocation'] . " " . $teams[$proposingTeamId]['teamNickname'];
 
-            $getting = array();
+            $getting = [];
             foreach ($transactionDetails as $k => $v) {
                 if ($v['fromSlotCategoryId'] != 1002) {
                     continue;
@@ -1547,7 +1524,6 @@ class FantasyFootball
                 $getting[] = $v->player->fullName . " (" . $positions[$v->player->position] . ", " . $v->player->team . ")";
             }
             if (count($getting) == 0) {
-
                 // No automatic waiver pickups
                 continue;
             }
@@ -1568,17 +1544,19 @@ class FantasyFootball
     }
 
     public function getRosters($leagueId, $returnType = self::RETURN_ALL)
-    {}
+    {
+    }
     public function getRostersWithHoles($leagueId = false)
-    {}
+    {
+    }
 
     public function getProTeamIds()
     {
-
     }
 
     public function getWaiverOrder($leagueId = "111799")
-    {}
+    {
+    }
 
     public function updateLeagueStandings($leagueId)
     {
@@ -1594,7 +1572,7 @@ class FantasyFootball
         ORDER BY S.matchupPeriodId ASC');
 
         $PDOSelect->bindParam(':leagueId', $leagueId);
-        $teamStandings = array();
+        $teamStandings = [];
 
         foreach ($teams as $k => $v) {
             $teamId = $v['teamId'];
@@ -1641,7 +1619,7 @@ class FantasyFootball
                 }
                 $lastResult = $thisResult;
             }
-            $teamStandings[] = array(
+            $teamStandings[] = [
                 'leagueId' => $leagueId,
                 'teamId' => $teamId,
                 'overallWins' => $overallWins,
@@ -1652,7 +1630,7 @@ class FantasyFootball
                 'pointsFor' => $pf,
                 'pointsAgainst' => $pa,
                 'overallStanding' => null,
-            );
+            ];
         }
         foreach ($teamStandings as $k => $v) {
             $wins[$k] = $v['overallWins'];
@@ -1686,13 +1664,14 @@ class FantasyFootball
         $this->logToRedis(__FUNCTION__);
 
         return $teamStandings;
-
     }
 
     public function getLeagueStandings($leagueId = "111799")
-    {}
+    {
+    }
     public function getPlayerOwner($playerName, $leagueId = "111799")
-    {}
+    {
+    }
 
     /**
      *
@@ -1700,7 +1679,8 @@ class FantasyFootball
      *
      */
     public function getRecords($leagueId)
-    {}
+    {
+    }
     public function sendEndOfMatchupNotification($leagueId, $notificationType, $matchupInfo)
     {
         // Check to see if this has already been sent
@@ -1782,16 +1762,18 @@ class FantasyFootball
         $notification->save();
 
         return $strMessage;
-
     }
 
     public function analyzeTeam($team)
-    {}
+    {
+    }
     public function rankAnalysis($analyses)
-    {}
+    {
+    }
 
     public function getTeamIdFromGroupMeId($leagueId, $groupMeId)
-    {}
+    {
+    }
     public function getTeams($leagueId)
     {
         $teams = Team::with('teamNotificationId')->where('leagueId', '=', $leagueId)->get();
@@ -1838,15 +1820,14 @@ class FantasyFootball
             }
         }
         if ($boolIncludeSeasonType) {
-            $week = array(
+            $week = [
                 "week" => $week,
                 "seasontype" => $seasontype,
-            );
+            ];
         }
         \Log::info("Week:");
         \Log::info(json_encode($week));
         return $week;
-
     }
 
     public function getTransactionDetails($hash)
@@ -1864,7 +1845,6 @@ class FantasyFootball
     public function logTransactionDetails($data)
     {
         foreach ($data->pendingMoveItems as $k => $v) {
-
             $t = TransactionDetail::firstOrNew([
                 'hash' => $data->hash,
                 'playerId' => $v->playerId,
@@ -1883,7 +1863,6 @@ class FantasyFootball
                 'moveTypeId' => $v->moveTypeId,
             ])->save();
         }
-
     }
 
     public function logMatchupInfo($data)
@@ -1956,10 +1935,12 @@ class FantasyFootball
     }
 
     public function getSacko($leagueId = "111799")
-    {}
+    {
+    }
 
     public function sendToGroupMe($data, $attachmentArray = null)
-    {}
+    {
+    }
 
     public function calculateQBR($data)
     {
@@ -1990,9 +1971,9 @@ class FantasyFootball
         // exit();
 
         // create an image manager instance with favored driver
-        $manager = new ImageManager(array(
+        $manager = new ImageManager([
             'driver' => 'imagick',
-        ));
+        ]);
 
         $homeTextBottom = "projected";
         $awayTextBottom = "projected";
@@ -2022,11 +2003,11 @@ class FantasyFootball
             $homeCircleColor = $cGreen;
             $awayCircleColor = $cRed;
             $circleBorderRadius = 10;
-        } else if ($data->winner == 'away') {
+        } elseif ($data->winner == 'away') {
             $homeCircleColor = $cRed;
             $awayCircleColor = $cGreen;
             $circleBorderRadius = 10;
-        } else if (($data->homeMinutesRemaining < 540) || ($data->awayMinutesRemaining < 540)) {
+        } elseif (($data->homeMinutesRemaining < 540) || ($data->awayMinutesRemaining < 540)) {
             $boolShowLiveScores = true;
             $matchupStatus = "Live";
         }
@@ -2049,7 +2030,6 @@ class FantasyFootball
         }
 
         if (($homeTextBottom == "Final") && ($awayTextBottom == "Final")) {
-
             if (($data->winner == 'undecided') && (($data->winner != 'home') && ($data->winner != 'away'))) {
                 $circleBorderRadius = 10;
 
@@ -2058,7 +2038,7 @@ class FantasyFootball
                     $homeCircleColor = $cOrange;
                     $awayCircleColor = $cOrange;
                     $winner = "tie";
-                } else if ($data->homeScore > $data->awayScore) {
+                } elseif ($data->homeScore > $data->awayScore) {
                     $homeCircleColor = $cGreen;
                     $awayCircleColor = $cRed;
                     $winner = "home";
@@ -2203,7 +2183,7 @@ class FantasyFootball
                 $homePosProjPoints = 999;
                 $homePosLivePoints = 55;
                 $homePosPercDone = 115;
-            } else if ($data->awayIsFinal) {
+            } elseif ($data->awayIsFinal) {
                 $awayPosProjPoints = 999;
                 $awayPosLivePoints = 285;
                 $awayPosPercDone = 355;
@@ -2325,8 +2305,7 @@ class FantasyFootball
 
         // exit();
         $filename = 'i/matchups/' . $data->hash . '.png';
-        try
-        {
+        try {
             unlink($root . $filename);
         } catch (\Throwable $e) {
         }
@@ -2342,7 +2321,7 @@ class FantasyFootball
     public function createAllMatchupImages($leagueId, $boolShowImage = false, $matchupPeriodId = null)
     {
         $matchups = $this->getMatchups($leagueId, $matchupPeriodId);
-        $images = array();
+        $images = [];
         foreach ($matchups as $k => $v) {
             if ($v['isBye'] != 1) {
                 $images[] = $this->root . $this->createMatchupImage($v);
@@ -2376,9 +2355,9 @@ class FantasyFootball
             $homeLogo = $game->homeTeam->logo;
             $awayLogo = $game->awayTeam->logo;
 
-            $manager = new ImageManager(array(
+            $manager = new ImageManager([
                 'driver' => 'imagick',
-            ));
+            ]);
 
             $width = 250;
             $height = 70;
@@ -2438,7 +2417,6 @@ class FantasyFootball
 
             // DATE TIME/CLOCK
             if ($game['statusState'] == "pre") {
-
                 // BEFORE a game
                 $img->text($dateGameStart->format($dateFormat), ($width / 2), $positionTimeV, function ($font) {
                     $font->file(public_path() . '/fonts/SF-UI-Text-Light.otf');
@@ -2463,7 +2441,6 @@ class FantasyFootball
                     $font->valign('middle');
                 });
             } elseif ($game['statusState'] == "post") {
-
                 $img->text($game['statusDetail'], ($width / 2), $positionTimeV, function ($font) {
                     $font->file(public_path() . '/fonts/SF-UI-Text-Light.otf');
                     $font->size(16);
@@ -2497,7 +2474,6 @@ class FantasyFootball
                 });
             } else {
                 if (($weatherConditions != null) && ($weatherTemperature != null) && ($game['venueIndoor'] != 1)) {
-
                     // Add temp and weather conditions
                     $positionWeatherV = $positionTimeV + 50;
                     $positionTimeV -= 10;
@@ -2506,7 +2482,6 @@ class FantasyFootball
                         $imgWeatherConditions = $manager->make($this->root . 'i/wx/' . strtolower($weatherConditions) . '.png')->heighten(20)
                             ->opacity(80);
                         $img->insert($imgWeatherConditions, 'bottom-left', 94, 2);
-
                     } catch (\Throwable $e) {
                         \Log::info("Can't get weather image for $weatherConditions");
                     }
@@ -2544,8 +2519,7 @@ class FantasyFootball
                 });
             }
             $filename = 'i/nfl/' . md5(json_encode($game)) . '.png';
-            try
-            {
+            try {
                 if (file_exists($this->root . $filename)) {
                     unlink($this->root . $filename);
                 }
@@ -2578,8 +2552,7 @@ class FantasyFootball
 
         // exit();
         $filename = 'i/matchups/' . $data->hash . '.png';
-        try
-        {
+        try {
             unlink($root . $filename);
         } catch (\Throwable $e) {
         }
@@ -2590,7 +2563,6 @@ class FantasyFootball
         } else {
             return $filename;
         }
-
     }
 
     public function getTextWidth($text, $font, $fontSize)
@@ -2622,9 +2594,9 @@ class FantasyFootball
             return null;
         }
 
-        $manager = new ImageManager(array(
+        $manager = new ImageManager([
             'driver' => 'imagick',
-        ));
+        ]);
 
         if (count($images) == 1) {
             $manager->make($images[0])->save($this->root . $filename);
@@ -2665,17 +2637,14 @@ class FantasyFootball
             $background->rectangle($stitches[$k]['x'], $stitches[$k]['y'], $stitches[$k]['x'] + $wImg, $stitches[$k]['y'] + $hImg, function ($draw) {
                 $draw->background('rgba(255, 255, 255, 0)');
                 $draw->border(2, '#fff');
-            }
-            );
+            });
         }
 
         $background->rectangle($stitches[0]['x'], $stitches[0]['y'], $stitches[count($images) - 1]['x'] + ($wImg - 1), $stitches[count($images) - 1]['y'] + $hImg - 1, function ($draw) {
             $draw->background('rgba(255, 255, 255, 0)');
             $draw->border(4, '#fff');
-        }
-        );
-        try
-        {
+        });
+        try {
             if (file_exists($this->root . $filename)) {
                 unlink($this->root . $filename);
             }
@@ -2713,9 +2682,11 @@ class FantasyFootball
      *
      */
     public function login()
-    {}
+    {
+    }
     public function getPickEmStandings()
-    {}
+    {
+    }
 
     public function getSlackChannelWebhook($channel = null)
     {
@@ -2737,5 +2708,4 @@ class FantasyFootball
                 break;
         }
     }
-
 }

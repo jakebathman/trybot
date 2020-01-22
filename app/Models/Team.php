@@ -32,7 +32,7 @@ class Team extends Model
 
     public function getName()
     {
-      return $this->teamName;
+        return $this->teamName;
     }
 
     public function setIsByeAttribute($value)

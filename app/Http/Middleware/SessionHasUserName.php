@@ -16,7 +16,7 @@ class SessionHasUserName
     public function handle($request, Closure $next)
     {
         $username = session('who', null);
-        if (!$username) {
+        if (! $username) {
             return redirect('who');
         }
         return $next($request);

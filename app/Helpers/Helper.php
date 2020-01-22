@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 /**
  *    Various helpers, registered  as an alias in config/app.php
- *    
+ *
  *    These are used in any other file as Helper::method($foo)
  */
 class Helper
@@ -14,11 +14,11 @@ class Helper
         return random_int($min, $max);
     }
 
-    public function implodeNice($array,$ending = "and")
+    public function implodeNice($array, $ending = "and")
     {
         $return = "";
 
-        if (!is_array($array)) {
+        if (! is_array($array)) {
             return $return;
         }
 
@@ -35,8 +35,7 @@ class Helper
         for ($i = 0; $i < $countOriginal; $i++) {
             if (count($array) >= 2) {
                 $return .= array_shift($array) . ", ";
-            } else
-            if (count($array) == 1) {
+            } elseif (count($array) == 1) {
                 $return .= $ending . " " . array_shift($array);
             }
         }

@@ -151,7 +151,7 @@ class Slash extends Controller
                     [
                     'user_id'         => $user->getId(),
                     'twitch_username' => $username,
-                    'twitch_user_id' => $twitchUserId, 
+                    'twitch_user_id' => $twitchUserId,
                     ]
                 );
             }

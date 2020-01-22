@@ -50,11 +50,9 @@
         ],
         "post-install-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postInstall",
-            "php artisan optimize"
         ],
         "post-update-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",
-            "php artisan optimize"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -63,6 +61,7 @@
     },
     "config": {
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "optimize-autoloader": true
     }
 }

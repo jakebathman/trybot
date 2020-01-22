@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateRedditTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('reddit', function(Blueprint $table)
+		$this->schema->create('reddit', function(Blueprint $table)
 		{
 			$table->string('subreddit', 254);
 			$table->string('name', 254)->unique('name');
@@ -35,14 +37,9 @@ class CreateRedditTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('reddit');
+		$this->schema->drop('reddit');
 	}
 
 }

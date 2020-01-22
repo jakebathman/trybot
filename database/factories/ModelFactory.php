@@ -11,7 +11,6 @@
 |
 */
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     static $password;
 
@@ -20,5 +19,18 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'email' => $faker->unique()->safeEmail,
         'password' => $password ?: $password = bcrypt('secret'),
         'remember_token' => str_random(10),
+        'slack_user_id' => 'U' . $faker->regexify('[A-Z0-9]{8}'),
+        'slack_user_name' => $faker->userName,
+        'slack_team_id' => 'T' . $faker->regexify('[A-Z0-9]{8}'),
+        'slack_team_domain' => 'reddittryhard',
+
+    ];
+});
+
+$factory->define(App\Http\Models\Twitch::class, function (Faker\Generator $faker) {
+    return [
+        'twitch_username' => $faker->userName,
+        'twitch_user_id' => $faker->randomNumber(8),
+        'is_active' => 1,
     ];
 });

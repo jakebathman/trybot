@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateScheduledTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('scheduled', function(Blueprint $table)
+		$this->schema->create('scheduled', function(Blueprint $table)
 		{
 			$table->string('varTimeToSend', 254);
 			$table->string('varTimeToSendPretty', 254)->comment('DATE_ISO8601 Format');
@@ -27,14 +29,9 @@ class CreateScheduledTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('scheduled');
+		$this->schema->drop('scheduled');
 	}
 
 }

@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateAuthTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('auth', function(Blueprint $table)
+		$this->schema->create('auth', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->string('authToken', 254);
@@ -25,14 +27,9 @@ class CreateAuthTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('auth');
+		$this->schema->drop('auth');
 	}
 
 }

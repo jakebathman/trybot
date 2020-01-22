@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateRemindersTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('reminders', function(Blueprint $table)
+		$this->schema->create('reminders', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->timestamp('timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -25,14 +27,9 @@ class CreateRemindersTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('reminders');
+		$this->schema->drop('reminders');
 	}
 
 }

@@ -42,29 +42,29 @@ class Kernel extends ConsoleKernel
         // During football times
 
         /**
-        $schedule->command('fantasy:update')->everyMinute()
-            ->timezone('America/Chicago')
-            ->sundays()
-            ->between('8:00', '23:59')
-            ->withoutOverlapping();
+            $schedule->command('fantasy:update')->everyMinute()
+                ->timezone('America/Chicago')
+                ->sundays()
+                ->between('8:00', '23:59')
+                ->withoutOverlapping();
 
-        $schedule->command('fantasy:update')->everyMinute()
-            ->timezone('America/Chicago')
-            ->mondays()
-            ->between('17:00', '23:59')
-            ->withoutOverlapping();
+            $schedule->command('fantasy:update')->everyMinute()
+                ->timezone('America/Chicago')
+                ->mondays()
+                ->between('17:00', '23:59')
+                ->withoutOverlapping();
 
-        $schedule->command('fantasy:update')->everyMinute()
-            ->timezone('America/Chicago')
-            ->thursdays()
-            ->between('17:00', '23:59')
-            ->withoutOverlapping();
+            $schedule->command('fantasy:update')->everyMinute()
+                ->timezone('America/Chicago')
+                ->thursdays()
+                ->between('17:00', '23:59')
+                ->withoutOverlapping();
 
-        // Other times
-        $schedule->command('fantasy:update')->everyTenMinutes()
-            ->timezone('America/Chicago')
-            ->weekdays()
-            ->withoutOverlapping();
+            // Other times
+            $schedule->command('fantasy:update')->everyTenMinutes()
+                ->timezone('America/Chicago')
+                ->weekdays()
+                ->withoutOverlapping();
         **/
     }
 
@@ -75,6 +75,8 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
+        $this->load(__DIR__.'/Commands');
+        
         require base_path('routes/console.php');
     }
 }

@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreatePeopleTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('people', function(Blueprint $table)
+		$this->schema->create('people', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->string('gamertag', 254)->unique('gamertag');
@@ -29,14 +31,9 @@ class CreatePeopleTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('people');
+		$this->schema->drop('people');
 	}
 
 }

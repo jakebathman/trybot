@@ -20,7 +20,7 @@ class GoogleTimeZone extends ClassHelper
     public function search($location, $timestamp = null)
     {
         $key = $this->key;
-        if (!$timestamp) {
+        if (! $timestamp) {
             $timestamp = time();
         }
         $queryString = http_build_query(compact('location', 'timestamp', 'key'));
@@ -30,16 +30,16 @@ class GoogleTimeZone extends ClassHelper
             ->returnResponseObject()
             ->get();
 
-        if (!isset($result->error)) {
+        if (! isset($result->error)) {
             $response = json_decode($result->content, true);
             if ($response['status'] != 'OK') {
-                return array(
+                return [
                     'status' => 'fail',
-                    'data'   => array(
+                    'data'   => [
                         'noResults' => 'No results were returned',
                         'response'  => $response,
-                    ),
-                );
+                    ],
+                ];
             }
 
             $this->rawOffset  = $response['rawOffset'];
@@ -47,11 +47,11 @@ class GoogleTimeZone extends ClassHelper
 
             return $response;
         }
-        return array(
+        return [
             'status'  => 'error',
             'message' => 'the curl request failed',
             'data'    => $result,
-        );
+        ];
     }
 
     /**

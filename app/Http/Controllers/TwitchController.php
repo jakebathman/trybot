@@ -37,7 +37,11 @@ class TwitchController extends ClassHelper
 
         // Get list of twitch usernames from the database
         $streams = Twitch::where('is_active', '=', '1')->get()->pluck('twitch_username');
-        $streamsQuery = $streams->map(function($stream){
+        if ($streams->isEmpty()) {
+            return [];
+        }
+
+        $streamsQuery = $streams->map(function ($stream) {
             return 'user_login='.$stream;
         });
         $url .= "?" . $streamsQuery->implode('&');
@@ -50,7 +54,7 @@ class TwitchController extends ClassHelper
             ->get();
 
         // Get the string game for the given game_id
-        collect($streamers->content->data)->map(function($streamer){
+        collect($streamers->content->data)->map(function ($streamer) {
             $streamer->game = $this->getGameForGameId($streamer->game_id);
         });
 
@@ -60,7 +64,7 @@ class TwitchController extends ClassHelper
     public function getGameForGameId($gameId, $timeout = 20)
     {
         $url = $this->apiBaseUrl . '/games?id=' . $gameId;
-\Log::info('url', [$url]);
+        \Log::info('url', [$url]);
         $game = Curl::to($url)
             ->withTimeout($timeout)
             ->withHeader('Client-ID: ' . $this->clientId)
@@ -110,7 +114,7 @@ class TwitchController extends ClassHelper
             $redisKey                   = 'Twitch:Streaming:' . $stream->user_name;
             $results[$stream->user_name] = null;
             $s                          = Redis::get($redisKey);
-            if (!$s) {
+            if (! $s) {
                 // This is a new stream, so notify the channel
                 $message = $this->buildTwitchMessage([$stream], false, false, true);
 
@@ -221,7 +225,7 @@ class TwitchController extends ClassHelper
             // See if redis knows about this message, based on its timestamp
             $redisKey = 'Twitch:Streaming:RecentMessages:' . $username;
             $m        = Redis::get($redisKey);
-            if (!$m) {
+            if (! $m) {
                 // Log the message in redis, expiring in 10 minutes
                 Redis::setEx($redisKey, 60 * 10, $response->get('ts') . ":" . $response->get('channel'));
             }
@@ -259,7 +263,7 @@ class TwitchController extends ClassHelper
                 $headers[] = $multitwitch;
             }
 
-            if (!empty($headers)) {
+            if (! empty($headers)) {
                 $message->setText(implode("\n\n", $headers));
             }
 
@@ -283,7 +287,7 @@ class TwitchController extends ClassHelper
                     }
                 }
 
-                $imageUrl = preg_replace('/\{width\}x\{height\}/i','640x360',$v->thumbnail_url) . '?t=' . time();
+                $imageUrl = preg_replace('/\{width\}x\{height\}/i', '640x360', $v->thumbnail_url) . '?t=' . time();
                 
                 $a = new Attachment();
                 $a->setUrl('https://twitch.tv/'.$v->user_name, $v->title);

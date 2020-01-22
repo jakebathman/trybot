@@ -15,8 +15,6 @@ class Twitch extends Model
     protected $keepRevisionOf           = [];
     protected $dontKeepRevisionOf       = [];
 
-    protected $connection = 'mysql';
-
     protected $table = 'twitch';
 
     protected $fillable = ['user_id', 'twitch_username', 'twitch_user_id', 'is_active'];

@@ -49,7 +49,7 @@ class Attachment
     public function setUrl($url, $urlTitle = null)
     {
         $this->setTitleLink($url);
-        if (!empty($urlTitle)) {
+        if (! empty($urlTitle)) {
             $this->setTitle($urlTitle);
         } else {
             $this->setTitle($url);
@@ -153,5 +153,4 @@ class Attachment
     {
         $this->mrkdwn_in[] = 'pretext';
     }
-
 }

@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreatePalindromesTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('palindromes', function(Blueprint $table)
+		$this->schema->create('palindromes', function(Blueprint $table)
 		{
 			$table->increments('primary');
 			$table->string('id', 100)->nullable();
@@ -22,14 +24,9 @@ class CreatePalindromesTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('palindromes');
+		$this->schema->drop('palindromes');
 	}
 
 }

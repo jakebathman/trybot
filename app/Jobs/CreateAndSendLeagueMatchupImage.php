@@ -39,7 +39,7 @@ class CreateAndSendLeagueMatchupImage implements ShouldQueue
      */
     public function handle()
     {
-      \Log::info("starting job CreateAndSendLeagueMatchupImage");
+        \Log::info("starting job CreateAndSendLeagueMatchupImage");
 
         // Update the league scoreboard
         // FantasyFootball::updateLeagueScoreboard($this->leagueId);
@@ -77,7 +77,6 @@ class CreateAndSendLeagueMatchupImage implements ShouldQueue
                 ->post();
 
             \Log::info(json_encode($postMessage));
-
         }
 
         \Log::info("End of job");

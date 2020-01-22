@@ -28,7 +28,7 @@ class NflTeam extends Model
 
     public function getColor()
     {
-        if (!is_null($this->altColor)) {
+        if (! is_null($this->altColor)) {
             return $this->altColor;
         }
         return $this->color;

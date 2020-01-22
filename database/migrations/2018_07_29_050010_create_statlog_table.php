@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateStatlogTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('statlog', function(Blueprint $table)
+		$this->schema->create('statlog', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->string('strDateTimeLogged', 254);
@@ -52,14 +54,9 @@ class CreateStatlogTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('statlog');
+		$this->schema->drop('statlog');
 	}
 
 }

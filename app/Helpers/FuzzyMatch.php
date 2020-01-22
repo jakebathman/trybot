@@ -17,7 +17,6 @@ class FuzzyMatch
 
         $commonCharacters = '';
         for ($i = 0; $i < $str1_len; $i++) {
-
             $noMatch = true;
             // compare if char does match inside given allowedDistance
             // and if it does add it to commonCharacters
@@ -60,18 +59,16 @@ class FuzzyMatch
             if ($commons1[$i] != $commons2[$i]) {
                 $transpositions++;
             }
-
         }
         $transpositions /= 2.0;
         // return the Jaro distance
         return ($commons1_len / ($str1_len) + $commons2_len / ($str2_len) + ($commons1_len - $transpositions) / ($commons1_len)) / 3.0;
-
     }
 
     public static function getPrefixLength($string1, $string2, $MINPREFIXLENGTH = 4)
     {
 
-        $n = min(array($MINPREFIXLENGTH, strlen($string1), strlen($string2)));
+        $n = min([$MINPREFIXLENGTH, strlen($string1), strlen($string2)]);
 
         for ($i = 0; $i < $n; $i++) {
             if ($string1[$i] != $string2[$i]) {

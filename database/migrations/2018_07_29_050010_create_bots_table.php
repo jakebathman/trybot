@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateBotsTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('bots', function(Blueprint $table)
+		$this->schema->create('bots', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->timestamp('timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -26,14 +28,9 @@ class CreateBotsTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('bots');
+		$this->schema->drop('bots');
 	}
 
 }

@@ -12,7 +12,7 @@ class EventServiceProvider extends ServiceProvider
    *
    * @var array
    */
-  protected $listen = [
+    protected $listen = [
     'App\Events\SomeEvent' => [
       'App\Listeners\EventListener',
     ],
@@ -20,17 +20,17 @@ class EventServiceProvider extends ServiceProvider
       'SocialiteProviders\\Slack\\SlackExtendSocialite@handle',
     ],
 
-  ];
+    ];
 
   /**
    * Register any events for your application.
    *
    * @return void
    */
-  public function boot()
-  {
-    parent::boot();
+    public function boot()
+    {
+        parent::boot();
 
-    //
-  }
+      //
+    }
 }

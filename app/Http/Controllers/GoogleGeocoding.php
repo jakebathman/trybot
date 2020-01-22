@@ -26,16 +26,16 @@ class GoogleGeocoding extends ClassHelper
             ->returnResponseObject()
             ->get();
 
-        if (!isset($result->error)) {
+        if (! isset($result->error)) {
             $response = json_decode($result->content, true);
             if ($response['status'] != 'OK') {
-                return array(
+                return [
                     'status' => 'fail',
-                    'data'   => array(
+                    'data'   => [
                         'noResults' => 'No results were returned',
                         'response'  => $response,
-                    ),
-                );
+                    ],
+                ];
             }
 
             $this->firstResult = $response['results'][0];
@@ -45,11 +45,11 @@ class GoogleGeocoding extends ClassHelper
                 'latlon'    => $this->getLatLon(),
             ];
         }
-        return array(
+        return [
             'status'  => 'error',
             'message' => 'the curl request failed',
             'data'    => $result,
-        );
+        ];
     }
 
     /**

@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateWordsTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('words', function(Blueprint $table)
+		$this->schema->create('words', function(Blueprint $table)
 		{
 			$table->increments('Primary');
 			$table->string('Word', 50)->nullable()->unique('Word');
@@ -20,14 +22,9 @@ class CreateWordsTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('words');
+		$this->schema->drop('words');
 	}
 
 }

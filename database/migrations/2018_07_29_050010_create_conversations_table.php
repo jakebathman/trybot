@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateConversationsTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('conversations', function(Blueprint $table)
+		$this->schema->create('conversations', function(Blueprint $table)
 		{
 			$table->string('varDateStart', 254);
 			$table->string('varDateEnd', 254);
@@ -25,14 +27,9 @@ class CreateConversationsTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('conversations');
+		$this->schema->drop('conversations');
 	}
 
 }
