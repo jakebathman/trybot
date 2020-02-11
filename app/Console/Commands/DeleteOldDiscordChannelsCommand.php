@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 
 class DeleteOldDiscordChannelsCommand extends Command
 {
+    
     protected $signature = 'discord:delete-old';
 
     protected $description = 'Delete old discord channels created using the /discord command';

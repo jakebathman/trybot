@@ -9,16 +9,7 @@ use Tests\TestCase;
 
 class SlashCommandsTest extends TestCase
 {
-
     use RefreshDatabase;
-
-    /** @test */
-    function it_can_handle_slash_discord()
-    {
-        $response = $this->get('/api/discord/create_voice_channel');
-
-        $response->assertStatus(200);
-    }
 
     /** @test */
     function it_can_handle_slash_twitch()

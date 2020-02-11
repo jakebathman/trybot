@@ -75,5 +75,8 @@ class Discord
         if (isset($response->id) && $channelId == $response->id) {
             return true;
         }
+
+        throw new Exception("Deleting channel failed (code {$response->code}): {$response->message}");
+        
     }
 }

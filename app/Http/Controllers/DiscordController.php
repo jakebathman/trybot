@@ -64,10 +64,10 @@ class DiscordController extends Controller
             ]);
         }
     }
-    
 
     public function delete($channelId)
     {
+        return $this->discord->deleteChannel($channelId);
     }
 
     public function generateName($numWords = 3)
