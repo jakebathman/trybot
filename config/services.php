@@ -44,6 +44,7 @@ return [
             'trybot'     => env('SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN'),
             'fantasybot' => env('SLACK_APP_FANTASYBOT_OAUTH_ACCESS_TOKEN'),
         ],
+        'verification_token' => env('SLACK_APP_TRYBOT_VERIFICATION_TOKEN'),
     ],
     'google'    => [
         'knowledge_graph' => env('GOOGLE_KNOWLEDGE_GRAPH_TOKEN'),
@@ -52,5 +53,8 @@ return [
     ],
     'api_ai'    => [
         'trybot' => env('API_AI_CLIENT_ACCESS_TOKEN'),
+    ],
+    'discord' => [
+        'trybot_token' => env('DISCORD_TRYBOT_TOKEN'),
     ],
 ];

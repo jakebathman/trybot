@@ -15,10 +15,7 @@ class SlashCommandsTest extends TestCase
     /** @test */
     function it_can_handle_slash_discord()
     {
-        $this->markTestIncomplete();
-
-        // Middleware skip?
-        $response = $this->get('/admin/slack');
+        $response = $this->get('/api/discord/create_voice_channel');
 
         $response->assertStatus(200);
     }
