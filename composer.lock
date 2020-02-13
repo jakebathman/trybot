@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6e1e687edf8ee0a1ecffe309552dc3b1",
+    "content-hash": "d59c6dd74af1f67c7d840929523e6796",
     "packages": [
         {
             "name": "cloudcreativity/laravel-json-api",
@@ -908,6 +908,58 @@
             ],
             "description": "Highlight PHP code in terminal",
             "time": "2018-09-29T18:48:56+00:00"
+        },
+        {
+            "name": "jtant/laravel-env-sync",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JulienTant/Laravel-Env-Sync.git",
+                "reference": "728b096c255f710de5d20a88c8e91fd006451b4e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JulienTant/Laravel-Env-Sync/zipball/728b096c255f710de5d20a88c8e91fd006451b4e",
+                "reference": "728b096c255f710de5d20a88c8e91fd006451b4e",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "5.*|^6.0",
+                "illuminate/support": "5.*|^6.0",
+                "php": ">=7.1",
+                "vlucas/phpdotenv": "3.*"
+            },
+            "require-dev": {
+                "mikey179/vfsstream": "^1.6",
+                "mockery/mockery": "^1.0",
+                "orchestra/testbench": "~3.8|^4.0",
+                "phpunit/phpunit": "^7.5|^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Jtant\\LaravelEnvSync\\EnvSyncServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jtant\\LaravelEnvSync\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Julien Tant",
+                    "email": "julien@craftyx.fr"
+                }
+            ],
+            "description": "A package that makes sure that your .env file is in sync with your .env.example",
+            "time": "2019-09-05T15:13:01+00:00"
         },
         {
             "name": "laravel/framework",
