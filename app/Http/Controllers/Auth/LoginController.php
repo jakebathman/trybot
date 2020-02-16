@@ -43,7 +43,7 @@ class LoginController extends Controller
     public function redirectToProvider()
     {
         return Socialite::driver('slack')
-        ->redirect();
+            ->redirect();
     }
 
     public function handleProviderCallback()

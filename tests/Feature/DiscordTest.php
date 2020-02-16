@@ -45,15 +45,9 @@ class DiscordTest extends TestCase
     */
     function it_can_delete_a_discord_channel($discordChannelId)
     {
-        print_r('channel: '.$discordChannelId);
         $discord = new Discord($this->discordGuildId);
         $result = $discord->deleteChannel($discordChannelId);
 
         $this->assertTrue($result);
-        // $this->markTestIncomplete();
-
-        // $response = $this->get('/api/discord/create_voice_channel');
-
-        // $response->assertStatus(200);
     }
 }
