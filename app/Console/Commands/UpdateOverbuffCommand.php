@@ -32,6 +32,10 @@ class UpdateOverbuffCommand extends Command
       'Real210Kiddd-1474' => ['pc'],
       'King_Schultzyy' => ['psn'],
       'ironrectangle' => ['psn'],
+      'H_voc' => ['psn'],
+      'scnoi' => ['psn'],
+      'Zirockz-1528' => ['pc'],
+      'ToffeeFromSATX' => ['psn'],
     ];
     $this->info("Starting Overbuff Update...");
 
