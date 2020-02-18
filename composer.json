@@ -9,7 +9,7 @@
         "cloudcreativity/laravel-json-api": "^1.4",
         "guzzlehttp/guzzle": "^6.3",
         "haruncpi/laravel-log-reader": "^1.0",
-        "iboldurev/api-ai-php": "^0.2.5",
+        "iboldurev/api-ai-php": "^0.3.0",
         "intervention/image": "^2.4",
         "ixudra/curl": "^6.10",
         "jtant/laravel-env-sync": "^3.0",
