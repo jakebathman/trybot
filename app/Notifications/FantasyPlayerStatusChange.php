@@ -57,7 +57,7 @@ class FantasyPlayerStatusChange extends Notification
     {
         $data=$this->data;
         return (new SlackMessage)
-            ->from('TryBot',':trybot:')
+            ->from('TryBot', ':trybot:')
             ->to('@jakebathman')
             ->content("Your player's status has changed! Player: " . $data['playerName'])
                 ->attachment(function ($attachment) use ($data) {

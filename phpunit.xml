@@ -7,7 +7,9 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false">
+         stopOnFailure="false"
+         printerClass="Sempro\PHPUnitPrettyPrinter\PrettyPrinter"
+>
     <testsuites>
         <testsuite name="Feature Tests">
             <directory suffix="Test.php">./tests/Feature</directory>
@@ -27,5 +29,9 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <env name="TWITCH_API_CLIENT_ID" value="qc6lybcglws35icl7i8004uhr7o3sd3"/>
+        <env name="SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN" value="abc-faketestingtoken-xyz"/>
     </php>
 </phpunit>

@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateConfigTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('config', function(Blueprint $table)
+		$this->schema->create('config', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->timestamp('timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -22,14 +24,9 @@ class CreateConfigTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('config');
+		$this->schema->drop('config');
 	}
 
 }

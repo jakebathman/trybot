@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateBootsTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('boots', function(Blueprint $table)
+		$this->schema->create('boots', function(Blueprint $table)
 		{
 			$table->increments('Id');
 			$table->timestamp('Timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -31,14 +33,9 @@ class CreateBootsTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('boots');
+		$this->schema->drop('boots');
 	}
 
 }

@@ -46,8 +46,7 @@ class GoogleSearch extends ClassHelper
             ->returnResponseObject()
             ->get();
 
-        if (!isset($result->error)) {
-
+        if (! isset($result->error)) {
             $content = $result->content;
 
             // Parse the Google search results page
@@ -85,13 +84,13 @@ class GoogleSearch extends ClassHelper
                 if (empty($v['url'])) {
                     continue;
                 }
-                $data[] = array(
+                $data[] = [
                     'name'            => $v['title'],
                     'description'     => $v['text'],
                     'description_alt' => $v['text_alt'],
                     'url'             => $v['url'],
                     'image'           => $v['image'],
-                );
+                ];
                 if (count($data) >= $limit) {
                     break;
                 }
@@ -118,7 +117,7 @@ class GoogleSearch extends ClassHelper
         // $text = iconv('UTF-8', 'ASCII//TRANSLIT', utf8_encode($text));
 
         // Fix any bolds separated by a line break
-        $text = preg_replace('/(\<\/b\>)(<br \/>|\\n|\s)+(\<b>)/i', " ", $text);        
+        $text = preg_replace('/(\<\/b\>)(<br \/>|\\n|\s)+(\<b>)/i', " ", $text);
 
         // Bold matches
         $text = str_ireplace(['<b>', '</b>'], '*', $text);

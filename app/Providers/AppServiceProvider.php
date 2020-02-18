@@ -18,9 +18,12 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         Response::macro('collectionToHtmlTable', function (\Illuminate\Support\Collection $collection) {
-            $html = "<table>";
+            $html = null;
 
             foreach ($collection as $k => $v) {
+                if (count($v) == 0) {
+                    continue;
+                }
                 $html .= "<tr>";
                 $html .= "<td><strong>$k</strong></td>";
                 if (is_string(array_keys($v->toArray())[0])) {
@@ -36,10 +39,11 @@ class AppServiceProvider extends ServiceProvider
                 }
                 $html .= "</tr>";
             }
-
-            return $html;
+            
+            if ($html) {
+                return `<html>{$html}</html>`;
+            }
         });
-
     }
 
     /**

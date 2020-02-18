@@ -6,14 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateSlackEmojiTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.slack'));
+    }
+
     public function up()
     {
-        Schema::create('slack.emoji', function (Blueprint $table) {
+        $this->schema->create('emoji', function (Blueprint $table) {
             $table->increments('id');
 
             $table->string('name');
@@ -25,13 +27,8 @@ class CreateSlackEmojiTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::dropIfExists('slack.emoji');
+        $this->schema->dropIfExists('emoji');
     }
 }

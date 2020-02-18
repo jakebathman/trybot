@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateTourneyTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('tourney', function(Blueprint $table)
+		$this->schema->create('tourney', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->timestamp('timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -23,14 +25,9 @@ class CreateTourneyTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('tourney');
+		$this->schema->drop('tourney');
 	}
 
 }

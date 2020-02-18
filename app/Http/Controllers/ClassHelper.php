@@ -25,13 +25,13 @@ class ClassHelper
     public function formatBytes($size, $precision = 2)
     {
         $base     = log($size, 1024);
-        $suffixes = array(
+        $suffixes = [
             '',
             'k',
             'M',
             'G',
             'T',
-        );
+        ];
 
         return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
     }
@@ -153,7 +153,7 @@ class ClassHelper
     {
         $return = "";
 
-        if (!is_array($array)) {
+        if (! is_array($array)) {
             return $return;
         }
 
@@ -170,8 +170,7 @@ class ClassHelper
         for ($i = 0; $i < $countOriginal; $i++) {
             if (count($array) >= 2) {
                 $return .= array_shift($array) . ", ";
-            } else
-            if (count($array) == 1) {
+            } elseif (count($array) == 1) {
                 $return .= $ending . " " . array_shift($array);
             }
         }
@@ -183,7 +182,7 @@ class ClassHelper
     {
         $intMin = 999;
 
-        if (!is_string($string) || !is_array($array)) {
+        if (! is_string($string) || ! is_array($array)) {
             return false;
         }
 
@@ -227,7 +226,7 @@ class ClassHelper
 
     public function combineImages($images, $filename, $columns = 2, $boolShowImage = false, $debug = false)
     {
-        if (!is_array($images)) {
+        if (! is_array($images)) {
             return false;
         }
 
@@ -235,9 +234,9 @@ class ClassHelper
             return null;
         }
 
-        $manager = new ImageManager(array(
+        $manager = new ImageManager([
             'driver' => 'imagick',
-        ));
+        ]);
 
         if (count($images) == 1) {
             $manager->make($images[0])->save($this->root . $filename);
@@ -278,17 +277,14 @@ class ClassHelper
             $background->rectangle($stitches[$k]['x'], $stitches[$k]['y'], $stitches[$k]['x'] + $wImg, $stitches[$k]['y'] + $hImg, function ($draw) {
                 $draw->background('rgba(255, 255, 255, 0)');
                 $draw->border(2, '#fff');
-            }
-            );
+            });
         }
 
         $background->rectangle($stitches[0]['x'], $stitches[0]['y'], $stitches[count($images) - 1]['x'] + ($wImg - 1), $stitches[count($images) - 1]['y'] + $hImg - 1, function ($draw) {
             $draw->background('rgba(255, 255, 255, 0)');
             $draw->border(4, '#fff');
-        }
-        );
-        try
-        {
+        });
+        try {
             if (file_exists($this->root . $filename)) {
                 unlink($this->root . $filename);
             }
@@ -313,7 +309,7 @@ class ClassHelper
 
     public function isoDateTimeToMySqlFormat($isoDateTime)
     {
-        if (!is_string($isoDateTime)) {
+        if (! is_string($isoDateTime)) {
             return $isoDateTime;
         }
         $d = \DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $isoDateTime);

@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateProgressTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('progress', function(Blueprint $table)
+		$this->schema->create('progress', function(Blueprint $table)
 		{
 			$table->string('progress', 254);
 			$table->string('scriptName', 254);
@@ -24,14 +26,9 @@ class CreateProgressTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('progress');
+		$this->schema->drop('progress');
 	}
 
 }

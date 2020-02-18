@@ -26,33 +26,33 @@ class KnowledgeGraph extends ClassHelper
         // ->asJson()
             ->get();
 
-        if (!isset($result->error)) {
+        if (! isset($result->error)) {
             $response = json_decode($result->content, true);
             if (count($response['itemListElement']) == 0) {
-                return array(
+                return [
                     'status' => 'fail',
-                    'data'   => array(
+                    'data'   => [
                         'noResults' => 'No results were returned',
                         'response'  => $response,
-                    ),
-                );
+                    ],
+                ];
             }
             $resultScore = $response['itemListElement'][0]['resultScore'];
             \Log::info("resultScore: " . $resultScore);
             if ($resultScore < $this->resultScoreThreshold) {
-                return array(
+                return [
                     'status' => 'fail',
-                    'data'   => array(
+                    'data'   => [
                         'noResults' => 'Results fell below minimum threshold for resultScore of ' . $this->resultScoreThreshold,
                         'response'  => $response,
-                    ),
-                );
+                    ],
+                ];
             }
             $item = $response['itemListElement'][0]['result'];
 
-            return array(
+            return [
                 'status' => 'success',
-                'data'   => array(
+                'data'   => [
                     'name'                => $item['name'],
                     'description'         => $item['description'],
                     'detailedDescription' => isset($item['detailedDescription']) ? $item['detailedDescription'] : null,
@@ -60,15 +60,15 @@ class KnowledgeGraph extends ClassHelper
                     'moreInfoUrl'         => $this->kg . str_ireplace('kg:', '', $item['@id']),
                     'resultScore'         => $resultScore,
                     'image'               => isset($item['image']) ? $item['image']['contentUrl'] : null,
-                ),
-            );
+                ],
+            ];
 
             return $response;
         }
-        return array(
+        return [
             'status'  => 'error',
             'message' => 'the curl request failed',
             'data'    => $result,
-        );
+        ];
     }
 }

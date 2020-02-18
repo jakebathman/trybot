@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateAprilfoolsTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('aprilfools', function(Blueprint $table)
+		$this->schema->create('aprilfools', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->timestamp('timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -25,14 +27,9 @@ class CreateAprilfoolsTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('aprilfools');
+		$this->schema->drop('aprilfools');
 	}
 
 }

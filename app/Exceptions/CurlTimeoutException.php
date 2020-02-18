@@ -1,4 +1,6 @@
 <?php
 namespace App\Exceptions;
 
-class CurlTimeoutException extends \Exception {}
+class CurlTimeoutException extends \Exception
+{
+}

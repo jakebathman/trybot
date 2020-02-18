@@ -60,8 +60,6 @@ class CreateAndSendNflGamesImage implements ShouldQueue
                 ->post();
 
             \Log::info(json_encode($postMessage));
-
         }
-
     }
 }

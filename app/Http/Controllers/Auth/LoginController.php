@@ -40,26 +40,28 @@ class LoginController extends Controller
         $this->middleware('guest', ['except' => 'logout']);
     }
 
-    public function redirectToProvider(){
-      return Socialite::driver('slack')
-        ->redirect();
+    public function redirectToProvider()
+    {
+        return Socialite::driver('slack')
+            ->redirect();
     }
 
-    public function handleProviderCallback(){
-      $user = Socialite::driver('slack')->user();
-      $slackUserId = $user->id;
-      $existingUser = User::firstOrNew(['slack_user_id'=>$slackUserId]);
-      $data = $user->user['user']; // Yes, really
-      $existingUser->update([
+    public function handleProviderCallback()
+    {
+        $user = Socialite::driver('slack')->user();
+        $slackUserId = $user->id;
+        $existingUser = User::firstOrNew(['slack_user_id'=>$slackUserId]);
+        $data = $user->user['user']; // Yes, really
+        $existingUser->update([
         'name' => $data['name'],
         'email' => $data['email'],
         'avatar' => $data['image_1024'],
-      ]);
+        ]);
 
-      $existingUser->save();
+        $existingUser->save();
 
-      Auth::login($existingUser, true);
+        Auth::login($existingUser, true);
 
-      return redirect($this->redirectTo);
+        return redirect($this->redirectTo);
     }
 }

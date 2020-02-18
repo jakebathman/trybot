@@ -7,30 +7,19 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 
 class EventServiceProvider extends ServiceProvider
 {
-  /**
-   * The event listener mappings for the application.
-   *
-   * @var array
-   */
-  protected $listen = [
-    'App\Events\SomeEvent' => [
-      'App\Listeners\EventListener',
-    ],
-    'SocialiteProviders\Manager\SocialiteWasCalled' => [
-      'SocialiteProviders\\Slack\\SlackExtendSocialite@handle',
-    ],
-
-  ];
-
-  /**
-   * Register any events for your application.
-   *
-   * @return void
-   */
-  public function boot()
-  {
-    parent::boot();
-
-    //
-  }
+    protected $listen = [
+        'App\Events\DiscordChannelCreated' => [
+            'App\Listeners\LogDiscordChannelCreated',
+        ],
+        'SocialiteProviders\Manager\SocialiteWasCalled' => [
+            'SocialiteProviders\\Slack\\SlackExtendSocialite@handle',
+        ],
+    ];
+    
+    public function boot()
+    {
+        parent::boot();
+        
+        //
+    }
 }

@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateMarkovTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('markov', function(Blueprint $table)
+		$this->schema->create('markov', function(Blueprint $table)
 		{
 			$table->increments('Id');
 			$table->timestamp('Timestamp')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -24,14 +26,9 @@ class CreateMarkovTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('markov');
+		$this->schema->drop('markov');
 	}
 
 }

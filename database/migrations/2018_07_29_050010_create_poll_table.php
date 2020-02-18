@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreatePollTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('poll', function(Blueprint $table)
+		$this->schema->create('poll', function(Blueprint $table)
 		{
 			$table->integer('id', true);
 			$table->string('timestamp', 254);
@@ -32,14 +34,9 @@ class CreatePollTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('poll');
+		$this->schema->drop('poll');
 	}
 
 }

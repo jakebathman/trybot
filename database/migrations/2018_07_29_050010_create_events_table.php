@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateEventsTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('events', function(Blueprint $table)
+		$this->schema->create('events', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->string('name', 254);
@@ -23,14 +25,9 @@ class CreateEventsTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('events');
+		$this->schema->drop('events');
 	}
 
 }

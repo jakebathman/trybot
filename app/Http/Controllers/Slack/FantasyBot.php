@@ -10,6 +10,7 @@ use App\Jobs\CreateAndSendNflGamesImage;
 use App\Models\TeamsNotificationId;
 use Facades\App\Services\FantasyFootball;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
 
 class FantasyBot extends Controller
@@ -26,7 +27,7 @@ class FantasyBot extends Controller
         $payload = \Request::all();
 
         if ($this->maintenanceMode === true) {
-            if (array_get($payload, 'user_id') != 'U0662EN06') {
+            if (Arr::get($payload, 'user_id') != 'U0662EN06') {
                 return "I'm being fixed right now, be back up soon!";
             }
         }
@@ -35,7 +36,7 @@ class FantasyBot extends Controller
         if (method_exists(self::class, strtolower($command))) {
             // Check that this was called from a fantasy football channel (if required)
             if (in_array($command, $this->fantasyCommands)) {
-                if (!$this->checkCurrentChannel(array_get($payload, "channel_id"))) {
+                if (! $this->checkCurrentChannel(Arr::get($payload, "channel_id"))) {
                     return "Sorry, you can't use this command outside of a Fantasy Football channel!";
                 }
             }
@@ -85,7 +86,7 @@ class FantasyBot extends Controller
         // Get the teamId for the user that called this command
         $team = TeamsNotificationId::where('slackUserId', '=', $payload['user_id'])->where('leagueId', '=', $leagueId)->first();
 
-        if (!$team) {
+        if (! $team) {
             return "Sorry, I'm not sure who you are!";
         }
 
@@ -106,12 +107,10 @@ class FantasyBot extends Controller
             $attachment->setImageUrl($matchup['imageUrl'] . "?r=" . \Helper::r());
             $attachment->setTs(Redis::get("FantasyFootball:log:updateLeagueScoreboard"));
             $message->addAttachment($attachment->build());
-
         }
 
         \Log::info($message->build());
         return response()->json($message->build());
-
     }
 
     public function matchups()
@@ -147,7 +146,7 @@ class FantasyBot extends Controller
 
         $attachment = new Attachment();
 
-        if (!isset($payload['text']) || is_null($payload['text'])) {
+        if (! isset($payload['text']) || is_null($payload['text'])) {
             return "You've gotta give me a player name!";
         }
         $text     = $payload['text'];
@@ -167,7 +166,7 @@ class FantasyBot extends Controller
 
         $message = new Message();
         $message->messageVisibleToChannel();
-        $liveGames = array_get($payload, 'text') == 'live';
+        $liveGames = Arr::get($payload, 'text') == 'live';
         if ($liveGames) {
             // Check to see if any games are live before trying to create the image
             $games = FantasyFootball::getLiveNflGames();
@@ -181,7 +180,6 @@ class FantasyBot extends Controller
         dispatch(new CreateAndSendNflGamesImage($payload['response_url'], $liveGames));
 
         return response()->json($message->build());
-
     }
 
     public function schedule()
@@ -235,5 +233,4 @@ class FantasyBot extends Controller
 
     //     return response()->json($message->build());
     // }
-
 }

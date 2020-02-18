@@ -13,7 +13,7 @@ class ApiAi extends Controller
     {
         $payload = \Request::all();
 
-        if (!isset($payload['text'])) {
+        if (! isset($payload['text'])) {
             return null;
         }
         return $this->getQuery($payload['text']);

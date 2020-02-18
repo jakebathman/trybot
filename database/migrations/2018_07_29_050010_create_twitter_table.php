@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateTwitterTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('twitter', function(Blueprint $table)
+		$this->schema->create('twitter', function(Blueprint $table)
 		{
 			$table->string('varTimeTweetCreatedStamp', 254);
 			$table->string('varTimeTweetCreated', 254)->comment('DATE_ISO8601 Format');
@@ -23,14 +25,9 @@ class CreateTwitterTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('twitter');
+		$this->schema->drop('twitter');
 	}
 
 }

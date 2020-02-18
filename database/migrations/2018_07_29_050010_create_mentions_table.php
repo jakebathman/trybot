@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateMentionsTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('mentions', function(Blueprint $table)
+		$this->schema->create('mentions', function(Blueprint $table)
 		{
 			$table->integer('primary', true);
 			$table->string('varId', 254)->unique('varId');
@@ -26,14 +28,9 @@ class CreateMentionsTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('mentions');
+		$this->schema->drop('mentions');
 	}
 
 }

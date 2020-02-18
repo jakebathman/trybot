@@ -11,5 +11,4 @@ class Guess extends Model
     protected $table   = 'guesses';
 
     protected $fillable = ['name', 'ip', 'guess'];
-
 }

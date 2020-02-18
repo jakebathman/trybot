@@ -63,5 +63,4 @@ class Mostowy extends Controller
     {
         return \View::make('mostowy_help');
     }
-
 }

@@ -8,6 +8,5 @@ class GameState extends Controller
 {
     public function get()
     {
-
     }
 }

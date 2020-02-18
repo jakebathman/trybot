@@ -5,14 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateGuessWhoGamesTable extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
+    protected $schema;
+
+    public function __construct()
+    {
+        $this->schema = Schema::connection(config('database.trybot2000'));
+    }
+
 	public function up()
 	{
-		Schema::create('guessWhoGames', function(Blueprint $table)
+		$this->schema->create('guessWhoGames', function(Blueprint $table)
 		{
 			$table->increments('Id');
 			$table->timestamp('Timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -25,14 +27,9 @@ class CreateGuessWhoGamesTable extends Migration {
 	}
 
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
 	public function down()
 	{
-		Schema::drop('guessWhoGames');
+		$this->schema->drop('guessWhoGames');
 	}
 
 }

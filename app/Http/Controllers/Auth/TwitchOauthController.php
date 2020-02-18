@@ -8,6 +8,5 @@ class TwitchOauthController extends Controller
 {
     public function handleCallback()
     {
-      
     }
 }
