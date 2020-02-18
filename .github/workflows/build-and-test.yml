@@ -21,6 +21,8 @@ jobs:
         env:
           APP_ENV: testing
           DISCORD_TRYBOT_TOKEN: ${{ secrets.DISCORD_TRYBOT_TOKEN }}
+          REDDIT_RSS_FEED_TOKEN: ${{ secrets.REDDIT_RSS_FEED_TOKEN }}
+          REDDIT_RSS_FEED_USER: ${{ secrets.REDDIT_RSS_FEED_USER }}
         run: |
           cp .env.example .env
           composer install
