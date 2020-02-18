@@ -24,6 +24,7 @@
         "venturecraft/revisionable": "^1.28"
     },
     "require-dev": {
+        "dms/phpunit-arraysubset-asserts": "^0.1.0",
         "filp/whoops": "~2.0",
         "fzaninotto/faker": "~1.4",
         "laravel/ui": "^1.2",

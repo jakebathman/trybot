@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -25,17 +26,17 @@ class AppServiceProvider extends ServiceProvider
                     continue;
                 }
                 $html .= "<tr>";
-                $html .= "<td><strong>$k</strong></td>";
+                $html .= "<td><strong>{$k}</strong></td>";
                 if (is_string(array_keys($v->toArray())[0])) {
                     // Create a sub-table for these key/value pairs
                     $sub = "<table>";
                     foreach ($v as $k2 => $v2) {
-                        $sub .= "<tr><td>$k2</td><td>$v2</td></tr>";
+                        $sub .= "<tr><td>{$k2}</td><td>{$v2}</td></tr>";
                     }
                     $sub .= "</table>";
-                    $html .= "<td>$sub</td>";
+                    $html .= "<td>{$sub}</td>";
                 } else {
-                    $html .= "<td>$v</td>";
+                    $html .= "<td>{$v}</td>";
                 }
                 $html .= "</tr>";
             }
@@ -43,6 +44,17 @@ class AppServiceProvider extends ServiceProvider
             if ($html) {
                 return `<html>{$html}</html>`;
             }
+        });
+
+        // Like collect() but recursive down a nested array
+        Collection::macro('recursive', function () {
+            return $this->map(function ($value) {
+                if (is_array($value) || is_object($value)) {
+                    return collect($value)->recursive();
+                }
+        
+                return $value;
+            });
         });
     }
 

@@ -18,7 +18,7 @@ class Discord
     
     public function createChannel($name)
     {
-        $responseChannel = Curl::to("https://discordapp.com/api/guilds/{$this->guildId}/channels")
+        $response = Curl::to("https://discordapp.com/api/guilds/{$this->guildId}/channels")
             ->withHeaders(['Authorization: Bot ' . $this->token])
             ->withData([
                 'name' => $name,
@@ -30,12 +30,12 @@ class Discord
             ->returnResponseObject()
             ->post();
 
-        if (isset($responseChannel->error)) {
+        if (isset($response->error)) {
             // Something went wrong with the request
-            throw new Exception("Creating channel failed (code {$responseInvite->status}): {$responseInvite->error}");
+            throw new Exception("Creating channel failed (code {$response->status}): {$response->error}");
         }
 
-        $channelId = $responseChannel->content->id;
+        $channelId = $response->content->id;
 
         event(new DiscordChannelCreated($this->guildId, $channelId, $name));
 
@@ -45,19 +45,19 @@ class Discord
 
     public function getChannelInvite($channelId)
     {
-        $responseInvite = Curl::to("https://discordapp.com/api/channels/{$channelId}/invites")
+        $response = Curl::to("https://discordapp.com/api/channels/{$channelId}/invites")
             ->withHeaders(['Authorization: Bot ' . $this->token])
             ->withData(['max_age' => 0])
             ->asJson()
             ->returnResponseObject()
             ->post();
 
-        if (isset($responseInvite->error)) {
+        if (isset($response->error)) {
             // Something went wrong with the request
-            throw new Exception("Invite failed (code {$responseInvite->status}): {$responseInvite->error}");
+            throw new Exception("Invite failed (code {$response->status}): {$response->error}");
         }
 
-        return 'https://discord.gg/' . $responseInvite->content->code;
+        return 'https://discord.gg/' . $response->content->code;
     }
 
     public function deleteChannel($channelId)

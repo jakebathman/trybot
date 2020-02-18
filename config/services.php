@@ -45,6 +45,7 @@ return [
             'fantasybot' => env('SLACK_APP_FANTASYBOT_OAUTH_ACCESS_TOKEN'),
         ],
         'verification_token' => env('SLACK_APP_TRYBOT_VERIFICATION_TOKEN'),
+        'modqueue_webhook' => env('SLACK_MEOWBOT_REDDIT_MODQUEUE_WEBHOOK'),
     ],
     'google'    => [
         'knowledge_graph' => env('GOOGLE_KNOWLEDGE_GRAPH_TOKEN'),
@@ -56,5 +57,11 @@ return [
     ],
     'discord' => [
         'trybot_token' => env('DISCORD_TRYBOT_TOKEN'),
+    ],
+    'reddit' => [
+        'rss_feed' => [
+            'token' => env('REDDIT_RSS_FEED_TOKEN'),
+            'user' => env('REDDIT_RSS_FEED_USER'),
+        ],
     ],
 ];
