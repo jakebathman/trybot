@@ -49,9 +49,11 @@ class RedditModQueueItem extends Notification
                 ->fields([
                     'user' => $post->get('author'),
                     'type' => $post->get('post_hint', 'text'),
-                ])
-                ->content($post->get('selftext'))
-                ->action('Open Mod Queue', 'https://www.reddit.com/r/mod/about/modqueue', 'primary');
+                    ])
+                ->fallback($post->get('title') . ' (type: ' . $post->get('post_hint', 'text') . ')')
+                ->content($post->get('selftext', $post->get('title')))
+                ->action('Mod Queue URL', 'https://www.reddit.com/r/mod/about/modqueue', 'primary')
+                ->action('Open Apollo', 'apollo://https://reddit.com', 'danger');
             if ($post->get('is_self', true) == false) {
                 $attachment->image($post->get('thumbnail'));
             }
