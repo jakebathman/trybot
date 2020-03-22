@@ -46,6 +46,11 @@ return [
         ],
         'verification_token' => env('SLACK_APP_TRYBOT_VERIFICATION_TOKEN'),
         'modqueue_webhook' => env('SLACK_MEOWBOT_REDDIT_MODQUEUE_WEBHOOK'),
+        'meowbot' => [
+            'oauth_token' => env('SLACK_MEOWBOT_OAUTH_ACCESS_TOKEN'),
+            'bot_token' => env('SLACK_MEOWBOT_BOT_TOKEN'),
+            'modqueue_channel' => env('SLACK_MEOWBOT_REDDIT_MODQUEUE_CHANNEL'), 
+        ],
     ],
     'google'    => [
         'knowledge_graph' => env('GOOGLE_KNOWLEDGE_GRAPH_TOKEN'),

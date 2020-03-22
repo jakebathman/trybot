@@ -50,7 +50,7 @@ return [
             'level' => 'debug',
             'days' => 7,
             'permission' => 0777,
-          ],
+        ],
 
         'slack' => [
             'driver' => 'slack',
