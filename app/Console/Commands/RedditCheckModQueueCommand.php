@@ -39,15 +39,25 @@ class RedditCheckModQueueCommand extends Command
                 $this->line("Clearing existing Slack messages");
 
                 $slack = new Slack($this->slackChannel);
+                $hasClearMessage = false;
 
                 collect($slack->getConversationHistory())
-                ->each(function ($message) use ($slack) {
+                ->each(function ($message) use ($slack, &$hasClearMessage) {
+                    if (Arr::get($message, 'attachments.0.title') == "Mod Queue Clear") {
+                        // Keep this message
+                        $hasClearMessage = true;
+                        return false;
+                    }
+                    
                     return $slack->deleteMessage($message['ts']);
                 });
             
                 $this->info('Successfully deleted all messages');
-                Notification::route('slack', config('services.slack.modqueue_webhook'))
-                ->notifyNow(new RedditModQueueClear);
+
+                if (! $hasClearMessage) {
+                    Notification::route('slack', config('services.slack.modqueue_webhook'))
+                        ->notifyNow(new RedditModQueueClear);
+                }
 
                 $this->logCleared($this->slackChannel);
             }
