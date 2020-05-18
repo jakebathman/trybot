@@ -7,20 +7,74 @@ use App\Http\Controllers\Slack\Helpers\Message;
 use App\Http\Controllers\Slack\Slack;
 use App\Http\Models\Twitch;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Ixudra\Curl\Facades\Curl;
-use \App\Exceptions\CurlTimeoutException;
 
 class TwitchController extends ClassHelper
 {
-    protected $redis;
     protected $apiBaseUrl = "https://api.twitch.tv/helix";
     protected $clientId;
+    protected $clientSecret;
+    protected $redisTokenKeyPrefix = 'twitch::app-token::';
+
+    private $token;
 
     public function __construct()
     {
-        $this->redis    = new Redis();
-        $this->clientId = env('TWITCH_API_CLIENT_ID', null);
+        $this->clientId = config('services.twitch.trybot.client_id');
+        $this->clientSecret = config('services.twitch.trybot.client_secret');
+        $this->token = Redis::get("{$this->redisTokenKeyPrefix}trybot") ?: 'missing';
+
+        $this->validateAppToken();
+        $this->authHeaders = [
+            "Authorization: Bearer {$this->token}",
+            "Client-ID: {$this->clientId}",
+        ];
+    }
+
+    public function validateAppToken()
+    {
+        $url = 'https://id.twitch.tv/oauth2/validate';
+
+        $response = Curl::to($url)
+            ->withHeader('Authorization: OAuth ' . $this->token)
+            ->returnResponseObject()
+            ->asJson()
+            ->get();
+        
+        if (($response->content->status ?? null) == 401) {
+            return $this->refreshAppToken();
+        }
+        
+        return json_encode($response->content);
+    }
+
+    public function refreshAppToken()
+    {
+        $url = "https://id.twitch.tv/oauth2/token?client_id={$this->clientId}&client_secret={$this->clientSecret}&grant_type=client_credentials";
+
+        $response = Curl::to($url)
+            ->returnResponseObject()
+            ->asJson()
+            ->post();
+
+        if ($response->content->access_token) {
+            // Set to expire from redis way earlier than the twitch expiration
+            $expirationSeconds = (int)($response->content->expires_in / 10) ?? 604800;
+            Redis::setEx(
+                "{$this->redisTokenKeyPrefix}trybot",
+                $expirationSeconds,
+                $response->content->access_token
+            );
+
+            return true;
+        }
+
+        Log::error('Error refreshing Twith app token');
+        Log::info(json_encode($response->content));
+
+        return;
     }
 
     /**
@@ -42,13 +96,13 @@ class TwitchController extends ClassHelper
         }
 
         $streamsQuery = $streams->map(function ($stream) {
-            return 'user_login='.$stream;
+            return 'user_login=' . $stream;
         });
         $url .= "?" . $streamsQuery->implode('&');
 
         $streamers = Curl::to($url)
             ->withTimeout($timeout)
-            ->withHeader('Client-ID: ' . $this->clientId)
+            ->withHeaders($this->authHeaders)
             ->returnResponseObject()
             ->asJson()
             ->get();
@@ -64,14 +118,18 @@ class TwitchController extends ClassHelper
     public function getGameForGameId($gameId, $timeout = 20)
     {
         $url = $this->apiBaseUrl . '/games?id=' . $gameId;
-        \Log::info('url', [$url]);
+
+        Log::info('url', [$url]);
+
         $game = Curl::to($url)
             ->withTimeout($timeout)
-            ->withHeader('Client-ID: ' . $this->clientId)
+            ->withHeaders($this->authHeaders)
             ->returnResponseObject()
             ->asJson()
             ->get();
-        \Log::info('game', (array)$game);
+
+        Log::info('game', (array)$game);
+
         return collect($game->content->data)->first()->name ?? null;
     }
 
@@ -87,7 +145,7 @@ class TwitchController extends ClassHelper
         $url = $this->apiBaseUrl . "/users?" . http_build_query(['login' => $username]);
 
         $result = Curl::to($url)
-            ->withHeader('Client-ID: ' . $this->clientId)
+            ->withHeaders($this->authHeaders)
             ->returnResponseObject()
             ->asJson()
             ->get();
@@ -104,8 +162,8 @@ class TwitchController extends ClassHelper
 
         $streamers = collect($this->getStreamers());
 
-        \Log::info("Current streams:" . $streamers->pluck('username')->implode(','));
-        \Log::info($streamers);
+        Log::info("Current streams:" . $streamers->pluck('username')->implode(','));
+        Log::info($streamers);
 
         $slack = new Slack;
 
@@ -118,39 +176,39 @@ class TwitchController extends ClassHelper
                 // This is a new stream, so notify the channel
                 $message = $this->buildTwitchMessage([$stream], false, false, true);
 
-                \Log::info("Posing to channel");
+                Log::info("Posing to channel");
                 $results[$stream->user_name][] = $this->postMessage($message, $slack->casualChannelId, $stream->user_name);
-                \Log::info("Message");
-                \Log::info($message->build());
+                Log::info("Message");
+                Log::info($message->build());
 
                 // If it's a Destiny stream, also send to the Destiny channel
                 if (preg_match('/destiny/i', $stream->game)) {
                     // This is a destiny stream (probably)
-                    \Log::info("Posing to Destiny channel");
+                    Log::info("Posing to Destiny channel");
                     $results[$stream->user_name][] = $this->postMessage($message, $slack->channels['destiny'], $stream->user_name);
                 }
                 // If it's an Overwatch stream, also send to the Overwatch channel
                 if (preg_match('/overwatch/i', $stream->game)) {
                     // This is an Overwatch stream (probably)
-                    \Log::info("Posing to Overwatch channel");
+                    Log::info("Posing to Overwatch channel");
                     $results[$stream->user_name][] = $this->postMessage($message, $slack->channels['overwatch'], $stream->user_name);
                 }
                 // If it's an Apex Legends stream, also send to the Apex channel
                 if (preg_match('/apex legends/i', $stream->game)) {
                     // This is an Apex Legends stream (probably)
-                    \Log::info("Posing to Apex channel");
+                    Log::info("Posing to Apex channel");
                     $results[$stream->user_name][] = $this->postMessage($message, $slack->channels['apex'], $stream->user_name);
                 }
                 // If it's a Fortnite stream, also send to the Fortnite channel
                 if (preg_match('/fortnite/i', $stream->game)) {
                     // This is a Fortnite stream (probably)
-                    \Log::info("Posing to Fortnite channel");
+                    Log::info("Posing to Fortnite channel");
                     $results[$stream->user_name][] = $this->postMessage($message, $slack->channels['fortnite'], $stream->user_name);
                 }
                 // If it's a CoD stream, also send to the Call of Duty channel
                 if (preg_match('/call of duty/i', $stream->game)) {
                     // This is a CoD stream (probably)
-                    \Log::info("Posing to CoD channel");
+                    Log::info("Posing to CoD channel");
                     $results[$stream->user_name][] = $this->postMessage($message, $slack->channels['callofduty'], $stream->user_name);
                 }
             } else {
@@ -161,12 +219,12 @@ class TwitchController extends ClassHelper
                 $currentGame = Redis::get($redisKey);
                 $newGame     = $stream->game ?: " ";
                 // $newGame     = "Over Watch";
-                \Log::info("currentGame: $currentGame");
-                \Log::info("newGame: $newGame");
+                Log::info("currentGame: {$currentGame}");
+                Log::info("newGame: {$newGame}");
                 if ($currentGame != $newGame) {
                     // The game has changed, so let's update the message we sent
                     $messageInfo = Redis::get('Twitch:Streaming:RecentMessages:' . $stream->user_name);
-                    \Log::info("messageInfo: $messageInfo");
+                    Log::info("messageInfo: {$messageInfo}");
                     if ($messageInfo) {
                         // We have record of the message timestamp, which is required to update a message
                         $messageInfo = explode(":", $messageInfo);
@@ -176,7 +234,7 @@ class TwitchController extends ClassHelper
                         $message = $this->buildTwitchMessage([$stream], false, false, true);
 
                         // Update the existing message with the new one
-                        \Log::info((array) $this->updateMessage($messageInfo[0], $message, $messageInfo[1], $stream->user_name));
+                        Log::info((array) $this->updateMessage($messageInfo[0], $message, $messageInfo[1], $stream->user_name));
                     }
                 }
             }
@@ -184,6 +242,7 @@ class TwitchController extends ClassHelper
             // Set the stream in redis, with a 6 minute expiration baked in, for all streams (which will just extend the time for current streams)
             Redis::setEx($redisKey, 60 * 6, $stream->game ?: " ");
         }
+
         return compact('streamers', 'results');
     }
 
@@ -220,7 +279,7 @@ class TwitchController extends ClassHelper
     public function logTwitchPostForUpdate($response, $username)
     {
         $response = collect($response->content);
-        \Log::info($response->toJson());
+        Log::info($response->toJson());
         if ($response->get('ok') == 'true' && $response->get('ts') !== null && $response->get('channel') !== null) {
             // See if redis knows about this message, based on its timestamp
             $redisKey = 'Twitch:Streaming:RecentMessages:' . $username;
@@ -234,7 +293,7 @@ class TwitchController extends ClassHelper
 
     public function buildTwitchMessage($streamers, $includePreamble = false, $includeViewerCount = true, $useLargePreviewImage = false, $includeMultiTwitch = false)
     {
-        $message = new Message();
+        $message = new Message;
         $message->messageVisibleToChannel();
 
         $streamers = collect($streamers);
@@ -289,11 +348,11 @@ class TwitchController extends ClassHelper
 
                 $imageUrl = preg_replace('/\{width\}x\{height\}/i', '640x360', $v->thumbnail_url) . '?t=' . time();
                 
-                $a = new Attachment();
-                $a->setUrl('https://twitch.tv/'.$v->user_name, $v->title);
+                $a = new Attachment;
+                $a->setUrl('https://twitch.tv/' . $v->user_name, $v->title);
                 $a->setText($strResponse);
-                \Log::info("image");
-                \Log::info($imageUrl);
+                Log::info("image");
+                Log::info($imageUrl);
                 $a->setImageURL($imageUrl);
                 $a->processMarkdownForText();
 
