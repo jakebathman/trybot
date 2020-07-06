@@ -290,13 +290,13 @@ class Slack extends Controller
         // Get a list of all current emoji in the database
         $currentEmoji = Emoji::all();
         $data         = [
-        'added'     => 0,
-        'deleted'   => 0,
-        'new_files' => 0,
-        'aliases'   => 0,
-        'emoji'     => 0,
-        'total'     => 0,
-        'list'      => [],
+            'added'     => 0,
+            'deleted'   => 0,
+            'new_files' => 0,
+            'aliases'   => 0,
+            'emoji'     => 0,
+            'total'     => 0,
+            'list'      => [],
         ];
 
         // Loop over existing emoji and mark any that no longer exist as inactive

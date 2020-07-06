@@ -4,6 +4,7 @@ namespace App\Http\Remotes;
 
 use App\Events\DiscordChannelCreated;
 use Exception;
+use Illuminate\Support\Facades\Http;
 use Ixudra\Curl\Facades\Curl;
 
 class Discord
@@ -16,6 +17,19 @@ class Discord
         $this->token = config('services.discord.trybot_token');
     }
     
+    public function getChannels($groupByCategory = false)
+    {
+        $response = Http::withHeaders(['Authorization' => 'Bot ' . $this->token])
+            ->get("https://discordapp.com/api/guilds/{$this->guildId}/channels");
+
+            // if (isset($response->error)) {
+        //     // Something went wrong with the request
+        //     throw new Exception("Creating channel failed (code {$response->status}): {$response->error}");
+        // }
+
+        return $response->json();
+    }
+
     public function createChannel($name)
     {
         $response = Curl::to("https://discordapp.com/api/guilds/{$this->guildId}/channels")
@@ -77,6 +91,5 @@ class Discord
         }
 
         throw new Exception("Deleting channel failed (code {$response->code}): {$response->message}");
-        
     }
 }

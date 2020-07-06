@@ -14,6 +14,17 @@ class DiscordTest extends TestCase
     public $discordGuildId = '143966277327781889';
 
     /** @test */
+    function it_can_get_discord_channels()
+    {
+        $discord = new Discord($this->discordGuildId);
+
+        $result = $discord->getChannels();
+
+        $this->assertIsArray($result);
+        $this->assertGreaterThan(0, count($result));
+    }
+
+    /** @test */
     function it_can_create_a_new_discord_channel()
     {
         $response = $this->get('/api/discord/create_voice_channel');
@@ -28,15 +39,17 @@ class DiscordTest extends TestCase
     /** @test */
     function it_can_generate_a_channel_invite()
     {
-        $this->markTestIncomplete();
-
-
-
         $response = $this->get('/api/discord/create_voice_channel');
 
         $response->assertStatus(200);
-        
-        print_r(DiscordChannel::all());
+        $response->assertJsonStructure([
+            'status',
+            'data' => [
+                'invite_url',
+                'channel_name',
+            ],
+        ]);
+        $this->assertStringContainsStringIgnoringCase('discord.gg', $response->json('data.invite_url'));
     }
 
     /**

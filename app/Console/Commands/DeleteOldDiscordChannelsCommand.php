@@ -31,5 +31,7 @@ class DeleteOldDiscordChannelsCommand extends Command
                 $this->error("Fail!");
             }
         });
+
+        return 0;
     }
 }

@@ -66,5 +66,7 @@ class UpdateFortniteTrackerCommand extends Command
                 \Log::info("Result: " . $response->status);
             }
         }
+
+        return 0;
     }
 }

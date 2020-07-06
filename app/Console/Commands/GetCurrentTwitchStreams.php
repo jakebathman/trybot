@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Http\Controllers\TwitchController;
+use Illuminate\Console\Command;
 
 class GetCurrentTwitchStreams extends Command
 {
@@ -17,7 +17,11 @@ class GetCurrentTwitchStreams extends Command
 
     public function handle()
     {
-        $twitch = new TwitchController();
-        $twitch->getNewlyStartedStreams();
+        $twitch = new TwitchController;
+        $streams = $twitch->getNewlyStartedStreams();
+
+        $this->line(json_encode($streams));
+
+        return 0;
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Http\Models\Twitch;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class SlashCommandsTest extends TestCase
@@ -22,15 +23,13 @@ class SlashCommandsTest extends TestCase
         ]);
         $user->fresh();
 
-        $query = http_build_query([
+        $response = $this->get(route('api.slack.slash.twitch', [
             'user_id' => $user->slack_user_id,
             'user_name' => $user->slack_user_name,
             'team_id' => $user->slack_team_id,
             'team_domain' => $user->slack_team_domain,
             'text' => "",
-        ]);
-
-        $response = $this->get('/api/slack/slash/twitch?' . $query);
+        ]));
 
         $response
             ->assertStatus(200)

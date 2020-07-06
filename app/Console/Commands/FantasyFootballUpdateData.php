@@ -55,5 +55,7 @@ class FantasyFootballUpdateData extends Command
         $f->processTransactionNotifications();
 
         \Log::info("DONE!");
+
+        return 0;
     }
 }

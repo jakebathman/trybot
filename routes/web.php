@@ -199,46 +199,46 @@ Route::group(['prefix' => 'admin'], function () {
  * API functionality
  */
 
-Route::group(['prefix' => 'api'], function () {
+Route::name('api.')->prefix('api')->group(function () {
 
     // A learning route for Mostowy
-    Route::group(['prefix' => 'mostowy'], function () {
-        Route::get('/', 'API\Mostowy@index');
-        Route::get('help', 'API\Mostowy@help');
+    Route::name('mostowy.')->prefix('mostowy')->group(function () {
+        Route::get('/', 'API\Mostowy@index')->name('index');
+        Route::get('help', 'API\Mostowy@help')->name('help');
     });
 
     // api.ai
-    Route::group(['prefix' => 'ai'], function () {
-        Route::get('query', 'ApiAi@query');
+    Route::name('ai.')->prefix('ai')->group(function () {
+        Route::get('query', 'ApiAi@query')->name('query');
     });
 
     // Slack
-    Route::group(['prefix' => 'slack'], function () {
+    Route::name('slack.')->prefix('slack')->group(function () {
 
-        Route::any('event', 'Slack\Slack@event');
-        Route::get('emoji', 'Slack\Slack@getEmojiList');
+        Route::any('event', 'Slack\Slack@event')->name('event');
+        Route::get('emoji', 'Slack\Slack@getEmojiList')->name('emoji');
 
         // Slack slash commands
-        Route::group(['prefix' => 'slash'], function () {
-            Route::any('google', 'Slack\Slash@google');
-            Route::any('twitch', 'Slack\Slash@twitch');
-            Route::any('tz', 'Slack\Slash@tz');
-            Route::any('jizzme', 'Slack\Slash@jizzMe');
-            Route::any('codes', 'Slack\Slash@codes');
+        Route::name('slash.')->prefix('slash')->group(function () {
+            Route::any('google', 'Slack\Slash@google')->name('google');
+            Route::any('twitch', 'Slack\Slash@twitch')->name('twitch');
+            Route::any('tz', 'Slack\Slash@tz')->name('tz');
+            Route::any('jizzme', 'Slack\Slash@jizzMe')->name('jizzme');
+            Route::any('codes', 'Slack\Slash@codes')->name('codes');
 
-            Route::group(['prefix' => 'fantasy'], function () {
-                Route::any('{command}', 'Slack\FantasyBot@command');
+            Route::name('fantasy.')->prefix('fantasy')->group(function () {
+                Route::any('{command}', 'Slack\FantasyBot@command')->name('command');
             });
         });
     });
 
-    Route::group(['prefix' => 'google'], function () {
-        Route::any('search/{query}', 'GoogleSearch@search');
+    Route::name('google.')->prefix('google')->group(function () {
+        Route::any('search/{query}', 'GoogleSearch@search')->name('search');
     });
 
     // Discord
-    Route::group(['prefix' => 'discord'], function () {
-        Route::any('create_voice_channel', 'DiscordController@create');
+    Route::name('discord.')->prefix('discord')->group(function () {
+        Route::any('create_voice_channel', 'DiscordController@create')->name('create_channel');
     });
 });
 

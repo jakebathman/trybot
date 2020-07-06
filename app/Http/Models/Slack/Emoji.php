@@ -9,12 +9,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Emoji extends Model
 {
-    // Use revisionable trait to track model changes
-    use \Venturecraft\Revisionable\RevisionableTrait;
-    protected $revisionCreationsEnabled = true;
-    protected $keepRevisionOf           = [];
-    protected $dontKeepRevisionOf       = [];
-
     protected $connection = 'slack';
 
     protected $table = 'emoji';
@@ -22,6 +16,8 @@ class Emoji extends Model
     protected $fillable = ['name', 'url', 'aliasFor', 'isActive'];
 
     protected $primaryKey = 'name';
+
+    protected $keyType = 'string';
 
     public $incrementing = false;
 

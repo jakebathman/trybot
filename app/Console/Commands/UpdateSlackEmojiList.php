@@ -41,5 +41,7 @@ class UpdateSlackEmojiList extends Command
         $slack = new Slack();
         $r = $slack->getEmojiList();
         print_r($r);
+
+        return 0;
     }
 }

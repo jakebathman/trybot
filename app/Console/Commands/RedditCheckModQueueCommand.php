@@ -28,6 +28,7 @@ class RedditCheckModQueueCommand extends Command
 
     public function handle()
     {
+        // Get any items in the reddit mod queue
         $data = collect($this->reddit->getModqueue())
             ->recursive();
         $posts = Arr::get($data, 'data.children');
@@ -79,6 +80,8 @@ class RedditCheckModQueueCommand extends Command
                 }
             });
         }
+
+        return 0;
     }
 
     protected function hasBeenSent($id)

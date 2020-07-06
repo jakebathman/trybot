@@ -55,5 +55,7 @@ class UpdateOverbuffCommand extends Command
                 Log::info("  Result: " . $response->status . "  |  Updated? " . (Arr::get($response->content, 'updated') ? "YES" : "NO"));
             }
         }
+
+        return 0;
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\TwitchController;
 use App\Http\Models\Twitch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class TwitchTest extends TestCase
@@ -57,5 +58,47 @@ class TwitchTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertSeeText($userId);
+    }
+
+    /** @test */
+    function it_gets_streams_info_via_twitch_streams_command()
+    {
+        $this->artisan('twitch:streams')
+            ->expectsOutput('{"streamers":[],"results":[]}')
+            ->assertExitCode(0);
+
+        // Now add a channel and try again (we'll test the output elsewhere)
+        factory(Twitch::class)->create([
+            'user_id' => 1,
+            'twitch_username' => 'stadium',
+        ]);
+
+        $this->artisan('twitch:streams')
+            ->assertExitCode(0);
+    }
+
+    /** @test */
+    function it_gets_newly_started_streams()
+    {
+        $data = (new TwitchController)->getNewlyStartedStreams();
+
+        $this->assertArrayHasKey('streamers', $data);
+        $this->assertArrayHasKey('results', $data);
+
+        // Now add a channel and try again (we'll test the output elsewhere)
+        factory(Twitch::class)->create([
+            'user_id' => 1,
+            'twitch_username' => 'stadium',
+        ]);
+        $data = (new TwitchController)->getNewlyStartedStreams();
+
+        $this->assertArrayHasKey('streamers', $data);
+        $this->assertArrayHasKey('results', $data);
+        $this->assertCount(1, $data['streamers']);
+        
+        $stream = $data['streamers'][0];
+        $this->assertEquals('209958706', $stream['user_id']);
+        $this->assertEquals('live', $stream['type']);
+        $this->assertEquals('Sports & Fitness', $stream['game']);
     }
 }
