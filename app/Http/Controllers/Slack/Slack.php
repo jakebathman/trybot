@@ -107,6 +107,11 @@ class Slack extends Controller
 
     public function isFortniteCreativeCode($text, $channel, $event = null)
     {
+        // Make sure this is just in the Fortnite channel
+        if ($channel != 'C79KLJYM9'){
+            return false;
+        }
+
         // Check to make sure we haven't checked this message already, to prevent duplicate responses
         $pattern = '/(?<!epicgames\.com\/fn\/)([\d]{4}-[\d]{4}-[\d]{4})/i';
         if (preg_match($pattern, $text, $matches)) {
