@@ -9,11 +9,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Emoji extends Model
 {
-    // Use revisionable trait to track model changes
-    use \Venturecraft\Revisionable\RevisionableTrait;
-    protected $revisionCreationsEnabled = true;
-    protected $keepRevisionOf           = [];
-    protected $dontKeepRevisionOf       = [];
+    public $incrementing = false;
+
+    public $timestamps = true;
 
     protected $connection = 'slack';
 
@@ -23,9 +21,12 @@ class Emoji extends Model
 
     protected $primaryKey = 'name';
 
-    public $incrementing = false;
+    protected $keyType = 'string';
 
-    public $timestamps = true;
+    public static function boot()
+    {
+        parent::boot();
+    }
 
     public function getName()
     {
@@ -55,10 +56,5 @@ class Emoji extends Model
     public function setAlias($aliasFor)
     {
         $this->aliasFor = $aliasFor;
-    }
-
-    public static function boot()
-    {
-        parent::boot();
     }
 }

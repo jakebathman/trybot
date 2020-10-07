@@ -61,16 +61,17 @@ class DiscordController extends Controller
             return JsonResponse::success([
                 'invite_url' => $inviteUrl,
                 'channel_name' => $name,
+                'channel_id' => $newChannelId,
             ]);
         }
     }
 
-    public function delete($channelId)
+    public function destroy($channelId)
     {
         return $this->discord->deleteChannel($channelId);
     }
 
-    public function generateName($numWords = 3)
+    protected function generateName($numWords = 3)
     {
         $words = config('words');
         shuffle($words);

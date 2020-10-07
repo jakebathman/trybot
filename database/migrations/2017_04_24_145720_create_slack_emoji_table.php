@@ -15,7 +15,7 @@ class CreateSlackEmojiTable extends Migration
 
     public function up()
     {
-        $this->schema->create('emoji', function (Blueprint $table) {
+        Schema::connection(config('database.slack'))->create('emoji', function (Blueprint $table) {
             $table->increments('id');
 
             $table->string('name');
@@ -29,6 +29,6 @@ class CreateSlackEmojiTable extends Migration
 
     public function down()
     {
-        $this->schema->dropIfExists('emoji');
+        Schema::connection(config('database.slack'))->dropIfExists('emoji');
     }
 }

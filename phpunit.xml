@@ -8,7 +8,6 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         printerClass="Sempro\PHPUnitPrettyPrinter\PrettyPrinter"
 >
     <testsuites>
         <testsuite name="Feature Tests">
@@ -31,7 +30,9 @@
         <env name="QUEUE_DRIVER" value="sync"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
-        <env name="TWITCH_API_CLIENT_ID" value="qc6lybcglws35icl7i8004uhr7o3sd3"/>
+        <env name="TWITCH_API_CLIENT_ID" value="i907xtf4yvrf4z9xjoslbtbm802l6w"/>
+        <env name="TWITCH_API_CLIENT_SECRET" value="ksmfrml3muzl6gpekvyu0fn4bd566c"/>
         <env name="SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN" value="abc-faketestingtoken-xyz"/>
+        <env name="TELESCOPE_ENABLED" value="false" />
     </php>
 </phpunit>

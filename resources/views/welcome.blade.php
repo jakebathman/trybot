@@ -1,22 +1,44 @@
-<!DOCTYPE html>
-<html lang="{{ config('app.locale') }}">
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+<!-- HTML Meta Tags -->
+<title>TryBot2000</title>
+<meta name="description" content="TryBot2000">
+
+<!-- Google / Search Engine Tags -->
+<meta itemprop="name" content="TryBot2000">
+<meta itemprop="description" content="TryBot2000">
+<meta itemprop="image" content="{{ url('img/trybot-circle.png') }}">
+
+<!-- Facebook Meta Tags -->
+<meta property="og:url" content="https://jake.cat">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TryBot2000">
+<meta property="og:description" content="TryBot2000">
+<meta property="og:image" content="{{ url('img/trybot-circle.png') }}">
+
+<!-- Twitter Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TryBot2000">
+<meta name="twitter:description" content="TryBot2000">
+<meta name="twitter:image" content="{{ url('img/trybot-circle.png') }}">
+
+<!-- Meta Tags Generated via http://heymeta.com -->
+
 
         <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
 
         <!-- Styles -->
         <style>
             html, body {
-                background-color: #fff;
+                background-color: #54c1a9;
                 color: #636b6f;
-                font-family: 'Raleway', sans-serif;
-                font-weight: 100;
+                font-family: 'Nunito', sans-serif;
+                font-weight: 200;
                 height: 100vh;
                 margin: 0;
             }
@@ -52,7 +74,7 @@
             .links > a {
                 color: #636b6f;
                 padding: 0 25px;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 600;
                 letter-spacing: .1rem;
                 text-decoration: none;
@@ -62,32 +84,31 @@
             .m-b-md {
                 margin-bottom: 30px;
             }
+
+            .meow {
+                max-width: 90%;
+            }
         </style>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
-                    @if (Auth::check())
+                    @auth
                         <a href="{{ url('/home') }}">Home</a>
                     @else
-                        <a href="{{ url('/login') }}">Login</a>
-                        <a href="{{ url('/register') }}">Register</a>
-                    @endif
+                        <a href="{{ route('login') }}">Login</a>
+
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}">Register</a>
+                        @endif
+                    @endauth
                 </div>
             @endif
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel
-                </div>
-
-                <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
+                    <img class="trybot2000" src="img/trybot-circle.png" />
                 </div>
             </div>
         </div>

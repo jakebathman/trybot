@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\FantasyFootball;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class FantasyFootballUpdateData extends Command
 {
@@ -40,20 +41,22 @@ class FantasyFootballUpdateData extends Command
     {
         $f = new FantasyFootball;
 
-        \Log::info("Updating NFL schedule");
+        Log::info("Updating NFL schedule");
         $f->updateNflSchedule();
         $f->updateNflBroadcastInfo();
-        \Log::info("");
+        Log::info("");
 
-        \Log::info("Updating fantasy football data");
+        Log::info("Updating fantasy football data");
         $f->updateAllLeagues();
-        \Log::info("");
+        Log::info("");
 
-        \Log::info("Processing notifications");
+        Log::info("Processing notifications");
         $f->processPlayerStatusChangeNotifications();
         $f->processPlayerProTeamIdNotifications();
         $f->processTransactionNotifications();
 
-        \Log::info("DONE!");
+        Log::info("DONE!");
+
+        return 0;
     }
 }

@@ -3,13 +3,12 @@
 namespace Tests\Feature;
 
 use App\Http\Remotes\Reddit;
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class RedditTest extends TestCase
 {
-    use RefreshDatabase, ArraySubsetAsserts;
+    use RefreshDatabase;
 
     /**
      * @test
@@ -20,7 +19,7 @@ class RedditTest extends TestCase
         $response = $reddit->getModqueue();
 
         $this->assertIsArray($response);
-        self::assertArraySubset(
+        $this->assertArraySubset(
             [
                 'kind' => 'Listing',
                 'data'  =>  [

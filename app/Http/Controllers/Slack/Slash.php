@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Slack;
 
-use \App\Exceptions\CurlTimeoutException;
+use App\Exceptions\CurlTimeoutException;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GoogleGeocoding;
 use App\Http\Controllers\GoogleSearch;
@@ -14,6 +14,7 @@ use App\Http\Controllers\TwitchController;
 use App\Http\Models\Twitch;
 use App\Jobs\ReplyToTwitchCommand;
 use App\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
@@ -22,17 +23,17 @@ class Slash extends Controller
 
     public function twitch()
     {
-        $payload = \Request::all();
+        $payload = request()->all();
 
         $twitchController = new TwitchController;
 
         // Get the user
         $user = User::where('slack_user_id', '=', $payload['user_id'])->first();
-        \Log::info(json_encode($user));
+        Log::info(json_encode($user));
 
         if (! $user) {
             // Create a new user
-            \Log::info('Creating new user');
+            Log::info('Creating new user');
             $user = User::create(
                 [
                 'slack_user_name'   => $payload['user_name'],
@@ -42,26 +43,26 @@ class Slash extends Controller
                 ]
             );
             $user->save();
-            \Log::info('UserId: ' . $user->id);
+            Log::info('UserId: ' . $user->id);
             $user = User::find($user->id);
-            \Log::info('Created user:');
-            \Log::info(json_encode($user));
+            Log::info('Created user:');
+            Log::info(json_encode($user));
         }
-        \Log::info('UserId: ' . $user->getId());
+        Log::info('UserId: ' . $user->getId());
 
         if (isset($payload['user_id']) && $payload['user_id'] == 'U0662EN06') {
             // Sent by Jake
             // Feature switch for new functionality
             if (trim($payload['text']) == 'list all') {
                 // Get all usernames
-                \Log::info('/twitch list all');
+                Log::info('/twitch list all');
                 $longest = 0;
                 $names   = Twitch::with('user')
                     ->get()
                     ->each(
                         function ($v, $k) use (&$longest) {
                             // Get longest twitch username length for fixed width later
-                            \Log::info(strlen($v->twitch_username) . ' ' . $v->twitch_username);
+                            Log::info(strlen($v->twitch_username) . ' ' . $v->twitch_username);
                             if (strlen($v->twitch_username) > $longest) {
                                 $longest = strlen($v->twitch_username);
                             }
@@ -69,7 +70,7 @@ class Slash extends Controller
                     )
                 ->map(
                     function ($v, $k) use ($longest) {
-                        \Log::info('longest: ' . $longest);
+                        Log::info('longest: ' . $longest);
                         return '`' . str_pad($v->twitch_username, $longest) . ' => ' . $v->user->slack_user_name . '`';
                     }
                 )
@@ -81,7 +82,7 @@ class Slash extends Controller
 
         if (preg_match('/(help|commands?|\-\-help|\-h|\/\?)/i', $payload['text'], $matches)) {
             // It's a HELP command
-            \Log::info('/twitch help');
+            Log::info('/twitch help');
             $r = "TryBot will automatically notify #casual when someone starts streaming, or when anyone sends `/twitch` in any channel. If you want your Twitch account to be included, use these commands to let TryBot know.\n\n";
             $r .= "Valid commands: set, list, delete (or nothing)\n";
             $r .= "  - `/twitch` returns the current streaming players (if any)\n";
@@ -95,8 +96,8 @@ class Slash extends Controller
             return response()->json($message->build());
         } elseif (preg_match('/(delete|del|remove)/i', $payload['text'], $matches)) {
             // It's a DELETE command, which removes the Twitch username set by this user
-            \Log::info('/twitch delete');
-            \Log::info('DELETE command');
+            Log::info('/twitch delete');
+            Log::info('DELETE command');
             $user = User::find($user->getId());
             if ($user->twitch()->get()->isNotEmpty()) {
                 // They have a username set
@@ -110,8 +111,8 @@ class Slash extends Controller
             }
         } elseif (preg_match('/(list)/i', $payload['text'], $matches)) {
             // It's a LIST command
-            \Log::info('/twitch list');
-            \Log::info('LIST command');
+            Log::info('/twitch list');
+            Log::info('LIST command');
             $user = User::find($user->getId());
             if ($user->twitch()->get()->isNotEmpty()) {
                 // They have a username set
@@ -121,15 +122,15 @@ class Slash extends Controller
             }
         } elseif (preg_match('/(set|add)(?:\s+([A-Za-z0-9_-]+))?/i', $payload['text'], $matches)) {
             // It's a SET command
-            \Log::info('/twitch set');
-            \Log::info('SET command');
-            \Log::info('UserId: ' . $user->getId());
+            Log::info('/twitch set');
+            Log::info('SET command');
+            Log::info('UserId: ' . $user->getId());
             // See if their user already has a Twitch username set
             $user = User::find($user->getId());
-            \Log::info('User with twitch:');
-            \Log::info(json_encode($user));
-            \Log::info('Twitch:');
-            \Log::info($user->twitch()->get());
+            Log::info('User with twitch:');
+            Log::info(json_encode($user));
+            Log::info('Twitch:');
+            Log::info($user->twitch()->get());
             if ($user->twitch()->get()->isNotEmpty()) {
                 // They already have a username set
                 return "Sorry, you've already set your Twitch username to *{$user->getTwitchUsername()}*";
@@ -149,9 +150,9 @@ class Slash extends Controller
 
                 Twitch::create(
                     [
-                    'user_id'         => $user->getId(),
-                    'twitch_username' => $username,
-                    'twitch_user_id' => $twitchUserId,
+                        'user_id' => $user->getId(),
+                        'twitch_username' => $username,
+                        'twitch_user_id' => $twitchUserId,
                     ]
                 );
             }
@@ -159,7 +160,7 @@ class Slash extends Controller
             $username = Twitch::where('user_id', '=', $user->getId())->pluck('twitch_username')->first();
             return "Alright, I'll watch for you on Twitch as *{$username}*";
         }
-        \Log::info('/twitch');
+        Log::info('/twitch');
 
         // No commands, so just return the list of streamers
         $twitchController = new TwitchController;
@@ -167,13 +168,13 @@ class Slash extends Controller
             // Get the current list of streamers
             $streamers = $twitchController->getStreamers(2);
             $message   = $twitchController->buildTwitchMessage($streamers, true, true, true, true);
-            \Log::info('returning directly');
+            Log::info('returning directly');
         } catch (CurlTimeoutException $e) {
             // It took too long, so queue the response instead of responding directly
             $message = new Message();
             $message->messageVisibleToChannel();
             $message->setText('Let me check Twitch... Hang tight!');
-            \Log::info('dispatching');
+            Log::info('dispatching');
             dispatch(new ReplyToTwitchCommand($payload['response_url']));
         }
 
@@ -183,7 +184,7 @@ class Slash extends Controller
     public function google()
     {
         $payload = \Request::all();
-        \Log::info($payload);
+        Log::info($payload);
 
         $message = new Message();
         $message->messageVisibleToChannel();
@@ -223,7 +224,7 @@ class Slash extends Controller
             // Search regular google
             $googleSearch        = new GoogleSearch;
             $googleSearchResults = $googleSearch->search($strSearchTerm);
-            \Log::info($googleSearchResults);
+            Log::info($googleSearchResults);
 
             if ($googleSearchResults && $googleSearch->isSuccess()) {
                 // Parse the results into attachments and send that
@@ -247,7 +248,7 @@ class Slash extends Controller
     public function tz()
     {
         $payload = \Request::all();
-        \Log::info($payload);
+        Log::info($payload);
 
         $message = new Message();
         $message->messageVisibleToChannel(false);
@@ -282,7 +283,7 @@ class Slash extends Controller
     public function jizzMe()
     {
         $payload = \Request::all();
-        \Log::info($payload);
+        Log::info($payload);
         $message = new Message();
         $message->messageVisibleToChannel();
 
@@ -329,7 +330,7 @@ class Slash extends Controller
         $numWords = [1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four', 5 => 'five', 6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine', 10 => 'ten'];
 
         $payload = \Request::all();
-        \Log::info($payload);
+        Log::info($payload);
         
         if (! isset($payload['text']) || is_null($payload['text'])) {
             $number = 5;
@@ -365,7 +366,7 @@ class Slash extends Controller
     // public function template()
     // {
     //     $payload = \Request::all();
-    //     \Log::info($payload);
+    //     Log::info($payload);
 
     //     $message = new Message();
     //     $message->messageVisibleToChannel();
