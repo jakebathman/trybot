@@ -251,7 +251,10 @@ class TwitchController extends ClassHelper
             Redis::setEx($redisKey, 60 * 6, $stream['game'] ?: " ");
         }
 
-        return compact('streamers', 'results');
+        return [
+            'streamers' => $streamers,
+            'results' => $results,
+        ];
     }
 
     public function postMessage(Message $message, $channelId, $username = null)

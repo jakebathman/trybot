@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Slack\Helpers\Message;
+use App\Http\Controllers\Slack\Slack;
+use App\Services\FantasyFootball;
+use Illuminate\Support\Facades\DB;
 use Ixudra\Curl\Facades\Curl;
 
 /*
@@ -18,7 +20,7 @@ use Ixudra\Curl\Facades\Curl;
 Route::get('/', 'HomeController@index');
 
 Route::get('ff_test', function () {
-    $f = new \App\Services\FantasyFootball(true);
+    $f = new FantasyFootball(true);
     return $f->updateScheduleItems('111799');
     // return $f->getMatchup('439427',1,3);
 
@@ -26,9 +28,9 @@ Route::get('ff_test', function () {
 });
 
 Route::get('mention_test', function () {
-    $f = new \App\Http\Controllers\Slack\Slack;
+    $f = new Slack;
 
-    $m = new \App\Http\Controllers\Slack\Helpers\Message;
+    $m = new Message;
     $m->setText('Hi <@U0662EN06|hiderr>');
 
     $f->postMessage($m, 'G1LKKBAQN');
@@ -40,7 +42,7 @@ Route::get('twitch', 'TwitchController@getNewlyStartedStreams');
 Route::get('twitch_test', 'TwitchController@getStreamers');
 
 Route::get('hfkwbzowbvfjhdhjfuhrb7364828', function () {
-    $guesses = \DB::table('guesses')->orderBy('created_at', 'DESC')->get();
+    $guesses = DB::table('guesses')->orderBy('created_at', 'DESC')->get();
     $r       = '<meta name="viewport" content="width=device-width, initial-scale=1"><style>table {border-spacing: 10px;border-collapse: separate;}</style><table>';
     foreach ($guesses as $g) {
         $r .= '<tr>';
@@ -82,10 +84,10 @@ Route::get('who', function () {
     return view('who', ['who' => session('who')]);
 });
 
-Route::post('/whom', function (\Illuminate\Http\Request $request) {
+Route::post('whom', function () {
     // Save the user's name in session and send them to the home page
-    session(['who' => $request->name]);
-    if ($request->name) {
+    session(['who' => request('name')]);
+    if (request('name')) {
         return '1';
     }
     return '0';
@@ -99,8 +101,8 @@ Route::group([], function () {
     Route::get('game', function () {
 
         // Check the current state of the guessing
-        $blocks         = config('april_fools_2017.codeBlocks');
-        $settings       = \DB::table('settings')->get();
+        $blocks = config('april_fools_2017.codeBlocks');
+        $settings = DB::table('settings')->get();
         $blocksToReturn = [];
         $blocksUnlocked = 0;
 
@@ -118,7 +120,7 @@ Route::group([], function () {
         return view('april_fools_2017', ['dev' => true, 'who' => session('who'), 'b' => $blocksToReturn, 'full' => $fullCodeUnlocked]);
     });
 
-    Route::post('/guess', function (\Illuminate\Http\Request $request) {
+    Route::post('guess', function (Illuminate\Http\Request $request) {
         $correctKeys = config('april_fools_2017.correctKeys');
         $blocks      = config('april_fools_2017.codeBlocks');
 
@@ -131,7 +133,7 @@ Route::group([], function () {
         // Log the guess to MySQL
         $name  = session('who');
         $ip    = $request->ip();
-        $guess = \App\Guess::create([
+        $guess = Guess::create([
             'name'  => $name,
             'guess' => $cleanGuess,
             'ip'    => $ip,
@@ -141,10 +143,10 @@ Route::group([], function () {
         }
 
         // Check the current state of the guessing
-        $settings         = \DB::table('settings')->get();
+        $settings = DB::table('settings')->get();
         $fullCodeUnlocked = false;
-        $blocksToReturn   = [];
-        $blocksUnlocked   = 0;
+        $blocksToReturn = [];
+        $blocksUnlocked = 0;
 
         foreach ($settings as $k => $v) {
             if ($v->is_unlocked == 1) {
@@ -175,7 +177,7 @@ Route::group([], function () {
             }
 
             // Log that this person unlocked this part of the code
-            \DB::table('settings')->where('block', '=', $blockNum)->update(['is_unlocked' => 1, 'unlocked_by' => $name]);
+            DB::table('settings')->where('block', '=', $blockNum)->update(['is_unlocked' => 1, 'unlocked_by' => $name]);
         }
         $r['blocks'] = $blocksToReturn;
 

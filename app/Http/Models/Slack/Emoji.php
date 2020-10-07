@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Emoji extends Model
 {
+    public $incrementing = false;
+
+    public $timestamps = true;
+
     protected $connection = 'slack';
 
     protected $table = 'emoji';
@@ -19,9 +23,10 @@ class Emoji extends Model
 
     protected $keyType = 'string';
 
-    public $incrementing = false;
-
-    public $timestamps = true;
+    public static function boot()
+    {
+        parent::boot();
+    }
 
     public function getName()
     {
@@ -51,10 +56,5 @@ class Emoji extends Model
     public function setAlias($aliasFor)
     {
         $this->aliasFor = $aliasFor;
-    }
-
-    public static function boot()
-    {
-        parent::boot();
     }
 }

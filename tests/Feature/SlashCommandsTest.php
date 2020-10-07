@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Http\Models\Twitch;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class SlashCommandsTest extends TestCase

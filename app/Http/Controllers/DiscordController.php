@@ -61,6 +61,7 @@ class DiscordController extends Controller
             return JsonResponse::success([
                 'invite_url' => $inviteUrl,
                 'channel_name' => $name,
+                'channel_id' => $newChannelId,
             ]);
         }
     }

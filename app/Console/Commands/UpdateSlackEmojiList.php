@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Http\Controllers\Slack\Slack;
+use Illuminate\Console\Command;
 
 class UpdateSlackEmojiList extends Command
 {
@@ -38,7 +38,7 @@ class UpdateSlackEmojiList extends Command
      */
     public function handle()
     {
-        $slack = new Slack();
+        $slack = new Slack;
         $r = $slack->getEmojiList();
         print_r($r);
 

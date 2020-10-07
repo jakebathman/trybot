@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Ixudra\Curl\Facades\Curl;
 
 class UpdateFortniteTrackerCommand extends Command
@@ -21,7 +22,6 @@ class UpdateFortniteTrackerCommand extends Command
    */
     protected $description = 'Update stats for users on FortniteTracker.com';
 
-    public $curl;
 
   /**
    * Create a new command instance.
@@ -31,7 +31,6 @@ class UpdateFortniteTrackerCommand extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->curl = new Curl();
     }
 
   /**
@@ -55,15 +54,15 @@ class UpdateFortniteTrackerCommand extends Command
 
         foreach ($users as $user => $platforms) {
             foreach ($platforms as $platform) {
-                \Log::info("Updating Fortnite stats for $user on $platform");
+                Log::info("Updating Fortnite stats for {$user} on {$platform}");
 
-                $response = Curl::to("https://fortnitetracker.com/profile/$platform/$user")
+                $response = Curl::to("https://fortnitetracker.com/profile/{$platform}/{$user}")
                 ->withTimeout(15)
                 ->allowRedirect()
                 ->returnResponseObject()
                 ->get();
 
-                \Log::info("Result: " . $response->status);
+                Log::info("Result: " . $response->status);
             }
         }
 

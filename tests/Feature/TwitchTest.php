@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Http\Controllers\TwitchController;
 use App\Http\Models\Twitch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class TwitchTest extends TestCase

@@ -162,7 +162,7 @@ return [
         App\Providers\TelescopeServiceProvider::class,
 
         Ixudra\Curl\CurlServiceProvider::class,
-        \SocialiteProviders\Manager\ServiceProvider::class,
+        SocialiteProviders\Manager\ServiceProvider::class,
 
     ],
 
