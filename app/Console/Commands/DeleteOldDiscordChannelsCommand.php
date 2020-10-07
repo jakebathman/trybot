@@ -27,21 +27,20 @@ class DeleteOldDiscordChannelsCommand extends Command
     {
         $channelsToKeep = DiscordChannel::shouldNotBeDeleted()->pluck('channel_id');
         $allChannels = $this->discord->getChannels(true);
-        
+
         // Find correct parent
         foreach ($allChannels[0] as $channel) {
             if (strtolower($channel['name']) == 'temp') {
                 $parentId = $channel['id'];
             }
         }
-        
 
         collect($allChannels[$parentId])->each(function ($channel) use ($channelsToKeep) {
-            if ($channelsToKeep->has($channel['id'])) {
+            if ($channelsToKeep->contains($channel['id'])) {
                 return;
             }
 
-            echo "Deleting {$channel['name']}...";
+            $this->line("Deleting {$channel['name']}...");
             $deleted = false;
 
             try {

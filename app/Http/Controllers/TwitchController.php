@@ -155,15 +155,6 @@ class TwitchController extends ClassHelper
             ->first();
     }
 
-    public function getEmotes($channelId = null)
-    {
-        $url = 'https://api.twitch.tv/kraken/users/44322889/emotes';
-
-        return Http::withHeaders($this->authHeaders)
-            ->get($url)
-            ->json();
-    }
-
     public function getNewlyStartedStreams()
     {
         $results = [];

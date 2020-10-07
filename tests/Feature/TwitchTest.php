@@ -45,14 +45,6 @@ class TwitchTest extends TestCase
         $this->assertNull($controller->getGameForGameId($unknownGameId));
     }
 
-    /** @test */
-    function it_gets_emotes_for_a_user()
-    {
-        $controller = new TwitchController;
-
-        // dd($controller->getEmotes());
-    }
-
     /**
      * @test
      */

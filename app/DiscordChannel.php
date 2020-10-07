@@ -9,6 +9,10 @@ class DiscordChannel extends Model
 {
     protected $fillable = ['guild_id','channel_id','channel_name'];
 
+    protected $casts = [
+        'is_deleted' => 'boolean',
+    ];
+
     public function scopeShouldBeDeleted($query)
     {
         $cutoff = Carbon::now()->subDay()->toDateTimeString();
