@@ -27,7 +27,17 @@ class Discord
         //     throw new Exception("Creating channel failed (code {$response->status}): {$response->error}");
         // }
 
-        return $response->json();
+        $channels = $response->json();
+
+        if ($groupByCategory) {
+            $channels = collect($channels)
+            ->mapToGroups(function ($channel) {
+                return [($channel['parent_id'] ?? 0) => $channel];
+            })
+            ->toArray();
+        }
+
+        return $channels;
     }
 
     public function createChannel($name)

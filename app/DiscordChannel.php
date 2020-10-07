@@ -15,4 +15,11 @@ class DiscordChannel extends Model
         
         return $query->where('created_at', '<=', $cutoff)->where('is_deleted', '=', 0);
     }
+
+    public function scopeShouldNotBeDeleted($query)
+    {
+        $cutoff = Carbon::now()->subDay()->toDateTimeString();
+        
+        return $query->where('created_at', '>', $cutoff)->where('is_deleted', '=', 0);
+    }
 }

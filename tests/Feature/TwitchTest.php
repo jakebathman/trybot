@@ -46,6 +46,14 @@ class TwitchTest extends TestCase
         $this->assertNull($controller->getGameForGameId($unknownGameId));
     }
 
+    /** @test */
+    function it_gets_emotes_for_a_user()
+    {
+        $controller = new TwitchController;
+
+        // dd($controller->getEmotes());
+    }
+
     /**
      * @test
      */
@@ -99,6 +107,6 @@ class TwitchTest extends TestCase
         $stream = $data['streamers'][0];
         $this->assertEquals('209958706', $stream['user_id']);
         $this->assertEquals('live', $stream['type']);
-        $this->assertEquals('Sports & Fitness', $stream['game']);
+        $this->assertEquals('Sports', $stream['game']);
     }
 }
