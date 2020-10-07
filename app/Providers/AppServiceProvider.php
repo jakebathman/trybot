@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
             }
             
             if ($html) {
-                return `<html>{$html}</html>`;
+                return "<html>{$html}</html>";
             }
         });
 
