@@ -269,16 +269,15 @@ class Slack extends Controller
         ]);
             
         $response = Http::withHeaders([
-            'Authorization' => "Bearer {$token}", 
+            'Authorization' => "Bearer {$token}",
         ])->post($url, [
             'channel' => $channel,
             'text' => $text,
             'blocks' => $blocks,
-        ]);
+        ])
+        ->json();
 
-        dd($response->json());
-
-        Log::info(json_encode($response));
+        Log::info($response);
 
         return $response;
     }
