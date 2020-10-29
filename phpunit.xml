@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         bootstrap="bootstrap/autoload.php"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    backupGlobals="false" 
+    backupStaticAttributes="false"
+    bootstrap="bootstrap/autoload.php"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
 >
-    <testsuites>
-        <testsuite name="Feature Tests">
-            <directory suffix="Test.php">./tests/Feature</directory>
-        </testsuite>
-
-        <testsuite name="Unit Tests">
-            <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./app</directory>
-        </whitelist>
-    </filter>
-    <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="QUEUE_DRIVER" value="sync"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-        <env name="TWITCH_API_CLIENT_ID" value="i907xtf4yvrf4z9xjoslbtbm802l6w"/>
-        <env name="TWITCH_API_CLIENT_SECRET" value="ksmfrml3muzl6gpekvyu0fn4bd566c"/>
-        <env name="SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN" value="abc-faketestingtoken-xyz"/>
-        <env name="TELESCOPE_ENABLED" value="false" />
-    </php>
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">./app</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="Feature Tests">
+      <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+    <testsuite name="Unit Tests">
+      <directory suffix="Test.php">./tests/Unit</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="QUEUE_DRIVER" value="sync"/>
+    <env name="DB_CONNECTION" value="sqlite"/>
+    <env name="DB_DATABASE" value=":memory:"/>
+    <env name="TWITCH_API_CLIENT_ID" value="i907xtf4yvrf4z9xjoslbtbm802l6w"/>
+    <env name="TWITCH_API_CLIENT_SECRET" value="ksmfrml3muzl6gpekvyu0fn4bd566c"/>
+    <env name="SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN" value="abc-faketestingtoken-xyz"/>
+    <env name="TELESCOPE_ENABLED" value="false"/>
+  </php>
 </phpunit>

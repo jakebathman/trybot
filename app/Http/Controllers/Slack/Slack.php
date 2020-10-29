@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\JsonResponse;
 use App\Http\Controllers\Slack\Helpers\Message;
 use App\Http\Models\Slack\Emoji;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Ixudra\Curl\Facades\Curl;
@@ -108,7 +109,7 @@ class Slack extends Controller
     public function isFortniteCreativeCode($text, $channel, $event = null)
     {
         // Make sure this is just in the Fortnite channel
-        if ($channel != 'C79KLJYM9'){
+        if ($channel != 'C79KLJYM9') {
             return false;
         }
 
@@ -227,7 +228,7 @@ class Slack extends Controller
         return false;
     }
 
-    public function postMessage(Message $message, $channel, $sendAs = 'trybot')
+    public function postMessage($message, $channel, $sendAs = 'trybot')
     {
         $baseUrl = 'https://slack.com/api/chat.postMessage?';
         $token = config("services.slack.users.{$sendAs}");
@@ -247,6 +248,37 @@ class Slack extends Controller
             ->post();
         Log::info(json_encode($postMessage));
         return $postMessage;
+    }
+
+    public function postMessageBlockKit($blocks, $channel, $text = null)
+    {
+        $token = config("services.slack.users.trybot");
+
+        if (! $token) {
+            Log::error('No Slack legacy token found in configs');
+        }
+        
+        $url = "https://slack.com/api/chat.postMessage";
+        Log::info($url);
+        Log::info([
+            'token' => $token,
+            'channel' => $channel,
+            'text' => $text,
+            'blocks' => $blocks,
+        ]);
+            
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer {$token}",
+        ])->post($url, [
+            'channel' => $channel,
+            'text' => $text,
+            'blocks' => $blocks,
+        ])
+        ->json();
+
+        Log::info($response);
+
+        return $response;
     }
 
     public function updateMessage($messageTs, Message $message, $channel)
