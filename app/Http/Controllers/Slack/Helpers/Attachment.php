@@ -25,9 +25,9 @@ class Attachment
     public $ts;
     public $mrkdwn_in;
 
-    public function __construct()
+    public function __construct($fallback = " ")
     {
-        $this->fallback = " ";
+        $this->fallback = $fallback;
     }
 
     public function build()

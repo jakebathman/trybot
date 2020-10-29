@@ -105,7 +105,8 @@ class TwitchController extends ClassHelper
             'Authorization' => "Bearer {$this->token}",
             'Client-ID' => "{$this->clientId}",
         ])
-        ->get($url);
+        ->get($url)
+        ->json();
 
         // Get the string game for the given game_id
         return collect($streamers['data'])->map(function ($streamer) {
@@ -173,42 +174,43 @@ class TwitchController extends ClassHelper
             $s = Redis::get($redisKey);
             if (! $s) {
                 // This is a new stream, so notify the channel
-                $message = $this->buildTwitchMessage([$stream], false, false, true);
+                list($text, $blocks) = $this->buildTwitchMessageBlocks($stream);
 
                 Log::info("Posing to channel");
-                $results[$stream['user_name']][] = $this->postMessage($message, $slack->casualChannelId, $stream['user_name']);
+                $results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->casualChannelId, $stream['user_name']);
                 Log::info("Message");
-                Log::info($message->build());
+                Log::info($text);
+                Log::info($blocks);
 
                 // If it's a Destiny stream, also send to the Destiny channel
                 if (preg_match('/destiny/i', $stream['game'])) {
                     // This is a destiny stream (probably)
                     Log::info("Posing to Destiny channel");
-                    $results[$stream['user_name']][] = $this->postMessage($message, $slack->channels['destiny'], $stream['user_name']);
+                    $results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->channels['destiny'], $stream['user_name']);
                 }
                 // If it's an Overwatch stream, also send to the Overwatch channel
                 if (preg_match('/overwatch/i', $stream['game'])) {
                     // This is an Overwatch stream (probably)
                     Log::info("Posing to Overwatch channel");
-                    $results[$stream['user_name']][] = $this->postMessage($message, $slack->channels['overwatch'], $stream['user_name']);
+                    $results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->channels['overwatch'], $stream['user_name']);
                 }
                 // If it's an Apex Legends stream, also send to the Apex channel
                 if (preg_match('/apex legends/i', $stream['game'])) {
                     // This is an Apex Legends stream (probably)
                     Log::info("Posing to Apex channel");
-                    $results[$stream['user_name']][] = $this->postMessage($message, $slack->channels['apex'], $stream['user_name']);
+                    $results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->channels['apex'], $stream['user_name']);
                 }
                 // If it's a Fortnite stream, also send to the Fortnite channel
                 if (preg_match('/fortnite/i', $stream['game'])) {
                     // This is a Fortnite stream (probably)
                     Log::info("Posing to Fortnite channel");
-                    $results[$stream['user_name']][] = $this->postMessage($message, $slack->channels['fortnite'], $stream['user_name']);
+                    $results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->channels['fortnite'], $stream['user_name']);
                 }
                 // If it's a CoD stream, also send to the Call of Duty channel
                 if (preg_match('/call of duty/i', $stream['game'])) {
                     // This is a CoD stream (probably)
                     Log::info("Posing to CoD channel");
-                    $results[$stream['user_name']][] = $this->postMessage($message, $slack->channels['callofduty'], $stream['user_name']);
+                    $results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->channels['callofduty'], $stream['user_name']);
                 }
             } else {
                 // Check that the current game matches the one we sent, and update if it's changed
@@ -230,7 +232,7 @@ class TwitchController extends ClassHelper
 
                         // Build a message for the stream
                         // $stream['game'] = $newGame;
-                        $message = $this->buildTwitchMessage([$stream], false, false, true);
+                        $message = $this->buildTwitchMessage($stream);
 
                         // Update the existing message with the new one
                         Log::info((array) $this->updateMessage($messageInfo[0], $message, $messageInfo[1], $stream['user_name']));
@@ -248,16 +250,16 @@ class TwitchController extends ClassHelper
         ];
     }
 
-    public function postMessage(Message $message, $channelId, $username = null)
+    public function postMessage($text, $blocks, $channelId, $username = null)
     {
         // Send to Slack
-        $slack    = new Slack;
-        $response = $slack->postMessage($message, $channelId);
+        $slack = new Slack;
+        $response = $slack->postMessageBlockKit($blocks, $channelId, $text);
 
         // If there's an attachment in the message, log it so we can update the game
         // within a few minutes (if needed)
         if ($username) {
-            $this->logTwitchPostForUpdate($response, $username);
+            // $this->logTwitchPostForUpdate($response, $username);
         }
 
         return $response;
@@ -266,7 +268,7 @@ class TwitchController extends ClassHelper
     public function updateMessage($messageTs, Message $message, $channelId, $username = null)
     {
         // Send to Slack
-        $slack    = new Slack;
+        $slack = new Slack;
         $response = $slack->updateMessage($messageTs, $message, $channelId);
 
         // If there's an attachment in the message, log it so we can update the game
@@ -293,6 +295,21 @@ class TwitchController extends ClassHelper
         }
     }
 
+    public function buildTwitchMessageBlocks($streamer)
+    {
+        if (! $streamer) {
+            // No one is currently streaming
+            return [
+                "Sorry, no one is currently streaming right now. If you just started, give Twitch a few minutes to let me know and try again!",
+                null,
+            ];
+        } else {
+            $imageUrl = preg_replace('/\{width\}x\{height\}/i', '640x360', $streamer['thumbnail_url']) . '?t=' . time();
+
+            return $this->makeStreamNoticeMessage($streamer['user_name'], $streamer['title'], $streamer['game'] ?? "", 'https://twitch.tv/' . $streamer['user_name'], $imageUrl);
+        }
+    }
+
     public function buildTwitchMessage($streamers, $includePreamble = false, $includeViewerCount = true, $useLargePreviewImage = false, $includeMultiTwitch = false)
     {
         $message = new Message;
@@ -307,7 +324,7 @@ class TwitchController extends ClassHelper
         } else {
             // Create a multitwitch URL
             $streamCollection = new Collection($streamers);
-            $multitwitch      = "multitwitch.tv/" . $streamCollection->implode('username', '/');
+            $multitwitch = "multitwitch.tv/" . $streamCollection->implode('username', '/');
 
             $preamble = null;
             if (count($streamers) === 1) {
@@ -329,8 +346,6 @@ class TwitchController extends ClassHelper
             }
 
             foreach ($streamers as $k => $v) {
-                $strViewers = "viewer" . ($v['viewer_count'] == 1 ? "" : "s");
-
                 // Set the user/gamertag
                 $strResponse = "*{$v['user_name']}*";
 
@@ -341,18 +356,12 @@ class TwitchController extends ClassHelper
                     $strResponse .= " is streaming " . "_" . $v['game'] . "_";
                 }
 
-                // Set number of viewers, if it should be included
-                if ($includeViewerCount) {
-                    if ($v['viewer_count'] > 0) {
-                        $strResponse .= " to " . $v['viewer_count'] . " " . $strViewers;
-                    }
-                }
-
                 $imageUrl = preg_replace('/\{width\}x\{height\}/i', '640x360', $v['thumbnail_url']) . '?t=' . time();
                 
                 $a = new Attachment;
                 $a->setUrl('https://twitch.tv/' . $v['user_name'], $v['title']);
                 $a->setText($strResponse);
+                $a->setFallback($strResponse);
                 Log::info("image");
                 Log::info($imageUrl);
                 $a->setImageURL($imageUrl);
@@ -361,6 +370,28 @@ class TwitchController extends ClassHelper
                 $message->addAttachment($a->build());
             }
         }
+
         return $message;
+    }
+
+    public function makeStreamNoticeMessage($username, $title, $game, $url, $imageUrl)
+    {
+        return [
+            "{$username} is streaming {$game}",
+            [
+                [
+                    'type' => 'section',
+                    'text' => [
+                        'type' => 'mrkdwn',
+                        'text' => "<{$url}|*{$title}*>\n*{$username}* is streaming {$game}",
+                    ],
+                ],
+                [
+                    'type' => 'image',
+                    'image_url' => $imageUrl,
+                    'alt_text' => $game,
+                ],
+            ],
+        ];
     }
 }
