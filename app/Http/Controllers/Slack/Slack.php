@@ -252,7 +252,6 @@ class Slack extends Controller
 
     public function postMessageBlockKit($blocks, $channel, $text = null)
     {
-        \Log::info('postMessageBlockKit');
         $token = config("services.slack.users.trybot");
 
         if (! $token) {
