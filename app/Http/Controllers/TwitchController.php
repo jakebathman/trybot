@@ -177,7 +177,7 @@ class TwitchController extends ClassHelper
                 list($text, $blocks) = $this->buildTwitchMessageBlocks($stream);
 
                 Log::info("Posing to channel");
-                $results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->casualChannelId, $stream['user_name']);
+                // results[$stream['user_name']][] = $this->postMessage($text, $blocks, $slack->casualChannelId, $stream['user_name']);
                 Log::info("Message");
                 Log::info($text);
                 Log::info($blocks);
